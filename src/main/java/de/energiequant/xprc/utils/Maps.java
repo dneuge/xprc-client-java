@@ -1,6 +1,7 @@
 package de.energiequant.xprc.utils;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,6 +22,11 @@ public class Maps {
     }
 
     @SafeVarargs
+    public static <K extends Enum<K>, V> Map<K, V> createUnmodifiableEnumMap(Class<K> clazz, Map.Entry<K, V>... entries) {
+        return Collections.unmodifiableMap(createEnumMap(clazz, entries));
+    }
+
+    @SafeVarargs
     public static <K, V> HashMap<K, V> createHashMap(Map.Entry<K, V>... entries) {
         return putAll(new HashMap<>(), entries);
     }
@@ -28,6 +34,11 @@ public class Maps {
     @SafeVarargs
     public static <K, V> LinkedHashMap<K, V> createLinkedHashMap(Map.Entry<K, V>... entries) {
         return putAll(new LinkedHashMap<>(), entries);
+    }
+
+    @SafeVarargs
+    public static <K extends Enum<K>, V> EnumMap<K, V> createEnumMap(Class<K> clazz, Map.Entry<K, V>... entries) {
+        return putAll(new EnumMap<>(clazz), entries);
     }
 
     private static <K, V, M extends Map<K, V>> M putAll(M dest, Map.Entry<K, V>... entries) {
