@@ -11,4 +11,14 @@ class FloatArrayValueType implements ValueType<float[]> {
     public float[] deserialize(String s) {
         return new float[0];
     }
+
+    @Override
+    public String name() {
+        return "FLOAT_ARRAY";
+    }
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }

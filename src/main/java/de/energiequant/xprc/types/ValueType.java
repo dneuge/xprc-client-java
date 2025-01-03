@@ -8,6 +8,8 @@ public interface ValueType<T> {
     ValueType<float[]> FLOAT_ARRAY = new FloatArrayValueType();
     ValueType<byte[]> BLOB = new BlobValueType();
 
+    String name();
+
     String serialize(T value);
 
     T deserialize(String s);

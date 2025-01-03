@@ -11,4 +11,14 @@ class IntegerValueType implements ValueType<Integer> {
     public Integer deserialize(String s) {
         return Integer.parseInt(s);
     }
+
+    @Override
+    public String name() {
+        return "INTEGER";
+    }
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }

@@ -12,4 +12,14 @@ class BlobValueType implements ValueType<byte[]> {
     public byte[] deserialize(String s) {
         return new byte[0];
     }
+
+    @Override
+    public String name() {
+        return "BLOB";
+    }
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }

@@ -37,4 +37,14 @@ class IntegerArrayValueType implements ValueType<int[]> {
 
         return out;
     }
+
+    @Override
+    public String name() {
+        return "INTEGER_ARRAY";
+    }
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }

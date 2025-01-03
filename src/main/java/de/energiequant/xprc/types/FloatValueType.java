@@ -11,4 +11,14 @@ class FloatValueType implements ValueType<Float> {
     public Float deserialize(String s) {
         return Float.parseFloat(s);
     }
+
+    @Override
+    public String name() {
+        return "FLOAT";
+    }
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }

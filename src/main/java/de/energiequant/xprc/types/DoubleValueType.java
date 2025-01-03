@@ -10,4 +10,14 @@ class DoubleValueType implements ValueType<Double> {
     public Double deserialize(String s) {
         return Double.parseDouble(s);
     }
+
+    @Override
+    public String name() {
+        return "DOUBLE";
+    }
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }
