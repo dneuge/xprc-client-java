@@ -52,6 +52,14 @@ public class ConnectionParameters {
         return acknowledgeTimeout;
     }
 
+    @Override
+    public String toString() {
+        return "ConnectionParameters(\"" + alias
+            + "\", host=\"" + host
+            + "\", port=" + port
+            + ")";
+    }
+
     public static Builder builder() {
         return new Builder();
     }

@@ -69,6 +69,51 @@ public class Command<M extends ChannelMessage> {
         return sb.toString();
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Command(");
+        sb.append(name);
+
+        if (!options.isEmpty()) {
+            boolean first = true;
+            sb.append(", options={");
+            for (Map.Entry<String, String> option : options.entrySet()) {
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append(", ");
+                }
+
+                sb.append(option.getKey());
+                sb.append("=\"");
+                sb.append(option.getValue());
+                sb.append("\"");
+            }
+            sb.append("}");
+        }
+
+        if (!parameters.isEmpty()) {
+            boolean first = true;
+            sb.append(", params=[");
+            for (String parameter : parameters) {
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append(", ");
+                }
+
+                sb.append("\"");
+                sb.append(parameter);
+                sb.append("\"");
+            }
+            sb.append("]");
+        }
+
+        sb.append(")");
+
+        return sb.toString();
+    }
+
     public static class Builder<B extends Builder<B, M, D>, M extends ChannelMessage, D extends ChannelDecoder<M>> {
         private final String name;
         private final Map<String, String> options = new LinkedHashMap<>();

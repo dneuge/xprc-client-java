@@ -21,4 +21,37 @@ public class Channel {
     public void close() {
 
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Channel(");
+
+        sb.append(id);
+        sb.append("/");
+        sb.append(commandState);
+        sb.append(", ");
+        sb.append(command);
+
+        if (dispatched != null) {
+            sb.append(", dispatched=");
+            sb.append(dispatched);
+        }
+
+        if (confirmed != null) {
+            sb.append(", confirmed=");
+            sb.append(confirmed);
+        }
+
+        if (closed != null) {
+            sb.append(", closed=");
+            sb.append(closed);
+        }
+
+        sb.append(", ");
+        sb.append(session);
+
+        sb.append(")");
+
+        return sb.toString();
+    }
 }

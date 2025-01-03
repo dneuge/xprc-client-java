@@ -363,4 +363,9 @@ public class Session implements AutoCloseable, Closeable {
 
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Session(" + localReferenceTimestamp + ", " + client + ")";
+    }
 }

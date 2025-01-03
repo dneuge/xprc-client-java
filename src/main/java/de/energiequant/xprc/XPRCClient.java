@@ -424,4 +424,9 @@ public class XPRCClient implements Closeable, AutoCloseable {
             throw new XPRCException(this, XPRCException.Consequence.RESOURCE_LEAK, "Connect/send thread could not be joined within timeout");
         }
     }
+
+    @Override
+    public String toString() {
+        return "XPRCClient(" + connectionParameters + ")";
+    }
 }
