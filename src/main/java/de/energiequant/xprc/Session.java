@@ -12,7 +12,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
@@ -36,9 +38,11 @@ public class Session implements AutoCloseable, Closeable {
     private final Collection<SessionMonitor> sessionMonitors;
     private final String logPrefix;
 
-    private final Deque<String> outboundQueue = new ArrayDeque<>();
+    private final Deque<ImmutablePair<Channel<?, ?>, String>> outboundQueue = new ArrayDeque<>();
     private final Deque<ImmutablePair<Instant, String>> inboundQueue = new ArrayDeque<>();
     private final AtomicBoolean shouldShutdown = new AtomicBoolean(false);
+
+    private final Map<ChannelId, Channel<?, ?>> channels = new HashMap<>();
 
     private final Thread receiveThread;
     private final Thread processingThread;
@@ -70,6 +74,10 @@ public class Session implements AutoCloseable, Closeable {
         notifyMonitorsAboutSession(SessionMonitor::onConnected);
     }
 
+    public String getLogPrefix() {
+        return logPrefix;
+    }
+
     public Channel dispatch(ChannelHandlerBuilder<?, ?> builder) {
         return null;
     }
@@ -88,6 +96,16 @@ public class Session implements AutoCloseable, Closeable {
                 callback.accept(sessionMonitor, this);
             } catch (Exception ex) {
                 LOGGER.warn("{}Failed to notify SessionMonitor {} about session", logPrefix, sessionMonitor, ex);
+            }
+        }
+    }
+
+    private void notifyMonitorsAboutChannel(BiConsumer<SessionMonitor, Channel<?, ?>> callback, Channel<?, ?> channel) {
+        for (SessionMonitor sessionMonitor : sessionMonitors) {
+            try {
+                callback.accept(sessionMonitor, channel);
+            } catch (Exception ex) {
+                LOGGER.warn("{}Failed to notify SessionMonitor {} about channel {}", logPrefix, sessionMonitor, channel, ex);
             }
         }
     }
@@ -242,7 +260,7 @@ public class Session implements AutoCloseable, Closeable {
 
         try {
             while (!shouldShutdown.get()) {
-                List<String> messages = null;
+                List<ImmutablePair<Channel<?, ?>, String>> messages = null;
 
                 synchronized (outboundQueue) {
                     if (!outboundQueue.isEmpty()) {
@@ -252,10 +270,19 @@ public class Session implements AutoCloseable, Closeable {
                 }
 
                 if (messages != null) {
-                    for (String msg : messages) {
-                        bw.write(msg);
+                    for (ImmutablePair<Channel<?, ?>, String> msg : messages) {
+                        Channel<?, ?> channel = msg.getLeft();
+                        if (channel != null) {
+                            channel.onDispatch();
+                        }
+
+                        String s = msg.getRight();
+                        notifyMonitorsAboutRawMessage(Direction.CLIENT_TO_SERVER, s);
+
+                        bw.write(s);
                         bw.write('\n');
-                        notifyMonitorsAboutRawMessage(Direction.CLIENT_TO_SERVER, msg);
+
+                        notifyMonitorsAboutChannel(SessionMonitor::onDispatched, channel);
                     }
                     bw.flush();
                 }
@@ -301,7 +328,7 @@ public class Session implements AutoCloseable, Closeable {
 
                         LOGGER.trace("{}received at {}: {}", procLogPrefix, timestamp, line);
                         ReceivedMessage msg = parseReceivedMessage(timestamp, line);
-                        LOGGER.debug("{}received: {}", procLogPrefix, msg);
+                        LOGGER.trace("{}received: {}", procLogPrefix, msg);
 
                         if (msg instanceof ServerMessage) {
                             if (msg.getType() == ReceivedMessage.Type.ERROR) {
@@ -318,6 +345,28 @@ public class Session implements AutoCloseable, Closeable {
                         }
 
                         ChannelMessage channelMessage = (ChannelMessage) msg;
+                        ChannelId channelId = channelMessage.getChannelId();
+                        Channel<?, ?> channel;
+                        synchronized (channels) {
+                            channel = channels.get(channelId);
+                        }
+                        if (channel == null) {
+                            throw new IllegalArgumentException("Channel " + channelId + " is not active: " + channelMessage);
+                        }
+
+                        channel.process(channelMessage);
+
+                        if (channel.isClosed()) {
+                            LOGGER.debug("{}Closed: {}", procLogPrefix, channel);
+
+                            synchronized (channels) {
+                                channels.remove(channelId);
+                            }
+
+                            channelPool.releaseChannel(channelId);
+
+                            notifyMonitorsAboutChannel(SessionMonitor::onChannelClosed, channel);
+                        }
 
                         // FIXME: implement actual processing
                         // TODO: monitor processing backlog/delay (configurable limits for warning and reconnect)
@@ -351,13 +400,71 @@ public class Session implements AutoCloseable, Closeable {
         }
     }
 
+    public <M extends ChannelMessage> Channel<Command<M>, M> submitCommand(Command.Builder<?, M, ?> commandBuilder) {
+        return submitCommand(commandBuilder.build());
+    }
+
+    public <M extends ChannelMessage> Channel<Command<M>, M> submitCommand(Command<M> command) {
+        ChannelId channelId = channelPool.allocateChannel()
+                                         .orElseThrow(() -> new XPRCException(client, Consequence.RECONNECT, "channels are exhausted"));
+
+        try {
+            return submitCommand(channelId, command);
+        } catch (Exception ex) {
+            channelPool.dropChannel(channelId);
+            throw new XPRCException(client, Consequence.RECONNECT, "Failed to submit command to automatically allocated channel " + channelId, ex);
+        }
+    }
+
+    public <M extends ChannelMessage> Channel<Command<M>, M> submitCommand(ChannelId channelId, Command.Builder<?, M, ?> commandBuilder) {
+        return submitCommand(channelId, commandBuilder);
+    }
+
+    public <M extends ChannelMessage> Channel<Command<M>, M> submitCommand(ChannelId channelId, Command<M> command) {
+        if (shouldShutdown.get()) {
+            LOGGER.warn("{}Session is being shut down, no more commands can be submitted. Got: {}", logPrefix, command);
+            throw new XPRCException(client, Consequence.RECONNECT, "Session is being shut down");
+        }
+
+        LOGGER.debug("{}Queueing channel {}: {}", logPrefix, channelId, command);
+
+        String encodedMessage;
+        try {
+            encodedMessage = command.encodeRequest(channelId);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Command failed to encode: " + command, ex);
+        }
+
+        Channel<Command<M>, M> channel = new Channel<>(channelId, this, command);
+        Channel<?, ?> previousChannel;
+        synchronized (channels) {
+            previousChannel = channels.putIfAbsent(channelId, channel);
+        }
+        if (previousChannel != null) {
+            // do not drop the channel from pool again - client should reconnect instead
+            LOGGER.warn("{}Channel {} is already in use", logPrefix, channelId);
+            throw new XPRCException(
+                client,
+                Consequence.RECONNECT,
+                "Channel " + channelId + " is already in use: " + previousChannel
+            );
+        }
+
+        synchronized (outboundQueue) {
+            outboundQueue.addLast(ImmutablePair.of(channel, encodedMessage));
+            outboundQueue.notifyAll();
+        }
+
+        return channel;
+    }
+
     public boolean sendRawMessage(String msg) {
         if (shouldShutdown.get()) {
             return false;
         }
 
         synchronized (outboundQueue) {
-            outboundQueue.addLast(msg);
+            outboundQueue.addLast(ImmutablePair.of(null, msg));
             outboundQueue.notifyAll();
         }
 

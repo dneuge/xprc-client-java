@@ -6,6 +6,14 @@ import java.util.Optional;
 public abstract class ReceivedMessage {
     public enum Type {
         ACKNOWLEDGEMENT, CONTINUATION, FINALIZATION, ERROR;
+
+        public boolean opensChannel() {
+            return this == ACKNOWLEDGEMENT;
+        }
+
+        public boolean closesChannel() {
+            return this == FINALIZATION || this == ERROR;
+        }
     }
 
     private final Instant localReceiveTimestamp;
