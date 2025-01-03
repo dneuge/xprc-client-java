@@ -123,6 +123,14 @@ public class ChannelPool {
         LOGGER.debug("{}released channel {}: {}", logPrefix, channelId, releaseState);
     }
 
+    public void dropChannel(ChannelId channelId) {
+        synchronized (this) {
+            stateByChannel.remove(channelId.getNumeric());
+        }
+
+        LOGGER.debug("{}dropped channel {}", logPrefix, channelId);
+    }
+
     private Instant calculateEndOfBlock() {
         return Instant.now().plus(blockDuration);
     }
