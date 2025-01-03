@@ -19,7 +19,7 @@ public class Channel {
     }
 
     public void close() {
-
+        // FIXME: implement - send termination request via Session if not already closed
     }
 
     @Override
