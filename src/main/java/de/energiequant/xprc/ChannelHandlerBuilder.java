@@ -4,43 +4,43 @@ import java.time.Duration;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class ChannelHandlerBuilder<T extends ChannelMessage, D extends ChannelDecoder<T>> {
+public class ChannelHandlerBuilder<M extends ChannelMessage, D extends ChannelDecoder<M>> {
     // FIXME: draft/WIP
-
+/*
     public static <T extends ChannelMessage, D extends ChannelDecoder<T>> ChannelHandlerBuilder<T, D> forCommand(
         Command.Builder<?, T, D> commandBuilder) {
         return new ChannelHandlerBuilder<T, D>();
-    }
+    }*/
 
-    public ChannelHandlerBuilder<T, D> withChannelId(String channelId) {
+    public ChannelHandlerBuilder<M, D> withChannelId(String channelId) {
         return this;
     }
 
-    public ChannelHandlerBuilder<T, D> onMessage(BiConsumer<Channel, T> a) {
+    public ChannelHandlerBuilder<M, D> onMessage(BiConsumer<Channel, M> a) {
         return this;
     }
 
-    public ChannelHandlerBuilder<T, D> onClose(BiConsumer<Channel, T> a) {
+    public ChannelHandlerBuilder<M, D> onClose(BiConsumer<Channel, M> a) {
         return this;
     }
 
-    public ChannelHandlerBuilder<T, D> onTimeout(Consumer<Channel> a) {
+    public ChannelHandlerBuilder<M, D> onTimeout(Consumer<Channel> a) {
         return this;
     }
 
-    public ChannelHandlerBuilder<T, D> waitUntilCompleted() {
+    public ChannelHandlerBuilder<M, D> waitUntilCompleted() {
         return null;
     }
 
-    public ChannelHandlerBuilder<T, D> waitUntilCompleted(Duration timeout) {
+    public ChannelHandlerBuilder<M, D> waitUntilCompleted(Duration timeout) {
         return null;
     }
 
-    public ChannelHandlerBuilder<T, D> waitUntilAcknowledged() {
+    public ChannelHandlerBuilder<M, D> waitUntilAcknowledged() {
         return null;
     }
 
-    public ChannelHandlerBuilder<T, D> waitUntilAcknowledged(Duration timeout) {
+    public ChannelHandlerBuilder<M, D> waitUntilAcknowledged(Duration timeout) {
         return null;
     }
 

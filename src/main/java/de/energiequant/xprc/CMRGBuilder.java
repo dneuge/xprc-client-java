@@ -1,8 +1,8 @@
 package de.energiequant.xprc;
 
-public class CMRGBuilder extends Command.Builder<CMRGBuilder, CMRGMessage, CMRGDecoder> {
+public class CMRGBuilder extends Command.Builder {
     // FIXME: draft/WIP
-    
+
     public enum MonitorMode {
         ALL, TRIGGER, HOLD_RELEASE;
     }
@@ -11,8 +11,8 @@ public class CMRGBuilder extends Command.Builder<CMRGBuilder, CMRGMessage, CMRGD
         BEFORE_XPLANE_HANDLER, AFTER_XPLANE_HANDLER;
     }
 
-    public CMRGBuilder() {
-        super("CMRG", CMRGDecoder::new);
+    public CMRGBuilder(XPRCClient client) {
+        super(client, "CMRG", CMRGDecoder::new, null); // FIXME: stubbed (null factory)
     }
 
     public CMRGBuilder monitoring(MonitorMode mode) {

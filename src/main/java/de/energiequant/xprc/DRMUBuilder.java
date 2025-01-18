@@ -2,7 +2,7 @@ package de.energiequant.xprc;
 
 import java.time.Duration;
 
-public class DRMUBuilder extends Command.Builder<DRMUBuilder, DRMUMessage, DRMUDecoder> {
+public class DRMUBuilder extends Command.Builder {
     // FIXME: draft/WIP
 
     public enum Method {
@@ -17,8 +17,8 @@ public class DRMUBuilder extends Command.Builder<DRMUBuilder, DRMUMessage, DRMUD
         BEFORE_FLIGHT_MODEL, AFTER_FLIGHT_MODEL;
     }
 
-    public DRMUBuilder() {
-        super("DRMU", DRMUDecoder::new);
+    public DRMUBuilder(XPRCClient client) {
+        super(client, "DRMU", DRMUDecoder::new, null); // FIXME: stubbed (null factory)
     }
 
     public DRMUBuilder repeatEvery(Interval interval) {

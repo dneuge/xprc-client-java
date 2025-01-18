@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Channel<C extends Command<M>, M extends ChannelMessage> {
+public class Channel<SELF extends Channel<SELF, C, M>, C extends Command<?, SELF, C, M>, M extends ChannelMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Channel.class);
 
     private final String sessionLogPrefix;
@@ -121,14 +121,16 @@ public class Channel<C extends Command<M>, M extends ChannelMessage> {
                 );
             }
 
-            M msg = decoder.decode(channelMessage);
+            M msg = decode(channelMessage);
             LOGGER.debug("{}[{}] received: {}", sessionLogPrefix, id, msg);
 
             ReceivedMessage.Type messageType = msg.getType();
 
+            // state transition includes validation; we should validate before we continue
             State newState = state.transition(messageType);
             if (newState != state) {
                 LOGGER.debug("{}[{}] command state {} => {}", sessionLogPrefix, id, state, newState);
+                onStateChanging(msg, state, newState);
             }
 
             if (messageType.opensChannel()) {
@@ -137,18 +139,65 @@ public class Channel<C extends Command<M>, M extends ChannelMessage> {
                 }
 
                 confirmed = msg.getLocalReceiveTimestamp();
+                onConfirmation(msg);
+            } else if (messageType.closesChannel() && confirmed == null) {
+                confirmed = msg.getLocalReceiveTimestamp();
+                onConfirmation(msg);
+            }
+
+            if (messageType == ReceivedMessage.Type.ERROR) {
+                onErrorMessage(msg);
+            } else if (msg.hasPayload()) {
+                onDataMessage(msg);
+            } else {
+                onBlankMessage(msg);
             }
 
             if (messageType.closesChannel()) {
-                if (confirmed == null) {
-                    confirmed = msg.getLocalReceiveTimestamp();
-                }
-
                 closed = msg.getLocalReceiveTimestamp();
+                onTermination(msg);
             }
 
-            state = newState;
+            if (newState != state) {
+                State oldState = state;
+                state = newState;
+                onStateChanged(msg, oldState, newState);
+            }
         }
+    }
+
+    protected M decode(ChannelMessage msg) {
+        // extension point for implementing classes
+        // TODO: implement by specific Channel classes instead of having a ChannelDecoder?
+        return decoder.decode(msg);
+    }
+
+    protected void onStateChanging(M msg, State oldState, State newState) {
+        // extension point for implementing classes
+    }
+
+    protected void onConfirmation(M msg) {
+        // extension point for implementing classes
+    }
+
+    protected void onTermination(M msg) {
+        // extension point for implementing classes
+    }
+
+    protected void onStateChanged(M msg, State oldState, State newState) {
+        // extension point for implementing classes
+    }
+
+    protected void onErrorMessage(M msg) {
+        // extension point for implementing classes
+    }
+
+    protected void onDataMessage(M msg) {
+        // extension point for implementing classes
+    }
+
+    protected void onBlankMessage(M msg) {
+        // extension point for implementing classes
     }
 
     public Optional<State> getCommandState() {

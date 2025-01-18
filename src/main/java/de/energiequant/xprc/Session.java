@@ -38,11 +38,11 @@ public class Session implements AutoCloseable, Closeable {
     private final Collection<SessionMonitor> sessionMonitors;
     private final String logPrefix;
 
-    private final Deque<ImmutablePair<Channel<?, ?>, String>> outboundQueue = new ArrayDeque<>();
+    private final Deque<ImmutablePair<Channel<?, ?, ?>, String>> outboundQueue = new ArrayDeque<>();
     private final Deque<ImmutablePair<Instant, String>> inboundQueue = new ArrayDeque<>();
     private final AtomicBoolean shouldShutdown = new AtomicBoolean(false);
 
-    private final Map<ChannelId, Channel<?, ?>> channels = new HashMap<>();
+    private final Map<ChannelId, Channel<?, ?, ?>> channels = new HashMap<>();
 
     private final Thread receiveThread;
     private final Thread processingThread;
@@ -100,7 +100,7 @@ public class Session implements AutoCloseable, Closeable {
         }
     }
 
-    private void notifyMonitorsAboutChannel(BiConsumer<SessionMonitor, Channel<?, ?>> callback, Channel<?, ?> channel) {
+    private void notifyMonitorsAboutChannel(BiConsumer<SessionMonitor, Channel<?, ?, ?>> callback, Channel<?, ?, ?> channel) {
         for (SessionMonitor sessionMonitor : sessionMonitors) {
             try {
                 callback.accept(sessionMonitor, channel);
@@ -260,7 +260,7 @@ public class Session implements AutoCloseable, Closeable {
 
         try {
             while (!shouldShutdown.get()) {
-                List<ImmutablePair<Channel<?, ?>, String>> messages = null;
+                List<ImmutablePair<Channel<?, ?, ?>, String>> messages = null;
 
                 synchronized (outboundQueue) {
                     if (!outboundQueue.isEmpty()) {
@@ -270,8 +270,8 @@ public class Session implements AutoCloseable, Closeable {
                 }
 
                 if (messages != null) {
-                    for (ImmutablePair<Channel<?, ?>, String> msg : messages) {
-                        Channel<?, ?> channel = msg.getLeft();
+                    for (ImmutablePair<Channel<?, ?, ?>, String> msg : messages) {
+                        Channel<?, ?, ?> channel = msg.getLeft();
                         if (channel != null) {
                             channel.onDispatch();
                         }
@@ -346,7 +346,7 @@ public class Session implements AutoCloseable, Closeable {
 
                         ChannelMessage channelMessage = (ChannelMessage) msg;
                         ChannelId channelId = channelMessage.getChannelId();
-                        Channel<?, ?> channel;
+                        Channel<?, ?, ?> channel;
                         synchronized (channels) {
                             channel = channels.get(channelId);
                         }
@@ -400,11 +400,11 @@ public class Session implements AutoCloseable, Closeable {
         }
     }
 
-    public <M extends ChannelMessage> Channel<Command<M>, M> submitCommand(Command.Builder<?, M, ?> commandBuilder) {
+    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(Command.Builder<?, C, CH, CFB, M, ?> commandBuilder) {
         return submitCommand(commandBuilder.build());
     }
 
-    public <M extends ChannelMessage> Channel<Command<M>, M> submitCommand(Command<M> command) {
+    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(C command) {
         ChannelId channelId = channelPool.allocateChannel()
                                          .orElseThrow(() -> new XPRCException(client, Consequence.RECONNECT, "channels are exhausted"));
 
@@ -416,11 +416,11 @@ public class Session implements AutoCloseable, Closeable {
         }
     }
 
-    public <M extends ChannelMessage> Channel<Command<M>, M> submitCommand(ChannelId channelId, Command.Builder<?, M, ?> commandBuilder) {
+    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(ChannelId channelId, Command.Builder<?, C, CH, CFB, M, ?> commandBuilder) {
         return submitCommand(channelId, commandBuilder);
     }
 
-    public <M extends ChannelMessage> Channel<Command<M>, M> submitCommand(ChannelId channelId, Command<M> command) {
+    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(ChannelId channelId, C command) {
         if (shouldShutdown.get()) {
             LOGGER.warn("{}Session is being shut down, no more commands can be submitted. Got: {}", logPrefix, command);
             throw new XPRCException(client, Consequence.RECONNECT, "Session is being shut down");
@@ -435,8 +435,9 @@ public class Session implements AutoCloseable, Closeable {
             throw new IllegalArgumentException("Command failed to encode: " + command, ex);
         }
 
-        Channel<Command<M>, M> channel = new Channel<>(channelId, this, command);
-        Channel<?, ?> previousChannel;
+        //CH channel = new Channel<>(channelId, this, command);
+        CH channel = null; // FIXME: call CFB
+        Channel<?, ?, ?> previousChannel;
         synchronized (channels) {
             previousChannel = channels.putIfAbsent(channelId, channel);
         }

@@ -80,6 +80,10 @@ public class ChannelMessage extends ReceivedMessage {
         return Optional.of(getRaw().substring(rawPayloadOffset));
     }
 
+    public boolean hasPayload() {
+        return rawPayloadOffset >= 0;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getClass().getSimpleName());

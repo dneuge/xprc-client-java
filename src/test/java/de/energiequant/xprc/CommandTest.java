@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -31,7 +32,7 @@ class CommandTest {
     })
     void testEncodeRequest_minimal_returnsExpectedResult(String channelId, String commandName, String expectedResult) {
         // arrange
-        Command<?> command = createBuilder(commandName).build();
+        Command<?, ?, ?, ?> command = createBuilder(commandName).build();
 
         // act
         String result = command.encodeRequest(channelId);
@@ -94,11 +95,11 @@ class CommandTest {
     @MethodSource("provide_validOptions_expectedResult")
     void testEncodeRequest_validOptions_returnsExpectedResult(String channelId, String commandName, Map<String, String> options, String expectedResult) {
         // arrange
-        Command.Builder<?, ?, ?> builder = createBuilder(commandName);
+        Command.Builder<?, ?, ?, ?, ?, ?> builder = createBuilder(commandName);
         for (Map.Entry<String, String> option : options.entrySet()) {
             builder.setOption(option.getKey(), option.getValue());
         }
-        Command<?> command = builder.build();
+        Command<?, ?, ?, ?> command = builder.build();
 
         // act
         String result = command.encodeRequest(channelId);
@@ -195,9 +196,9 @@ class CommandTest {
     @MethodSource("provide_validParameters_expectedResult")
     void testEncodeRequest_validParameters_returnsExpectedResult(String channelId, String commandName, Collection<String> parameters, String expectedResult) {
         // arrange
-        Command.Builder<?, ?, ?> builder = createBuilder(commandName);
+        Command.Builder<?, ?, ?, ?, ?, ?> builder = createBuilder(commandName);
         parameters.forEach(builder::addParameter);
-        Command<?> command = builder.build();
+        Command<?, ?, ?, ?> command = builder.build();
 
         // act
         String result = command.encodeRequest(channelId);
@@ -208,7 +209,7 @@ class CommandTest {
 
     @Nested
     class BuilderTest {
-        @SuppressWarnings({"rawtypes", "unchecked"})
+        @SuppressWarnings({"rawtypes", "unchecked", "resource"})
         @ParameterizedTest
         @ValueSource(strings = {
             "",
@@ -223,16 +224,20 @@ class CommandTest {
             "ABC1",
         })
         void testConstructor_invalidCommandName_throwsIllegalArgumentException(String commandName) {
-            // arrange (nothing to do)
+            // arrange
+            XPRCClient client = Mockito.mock(XPRCClient.class, Answers.RETURNS_DEEP_STUBS);
+            Supplier<ChannelDecoder<?>> channelDecoderFactory = Mockito.mock(Supplier.class, Answers.RETURNS_DEEP_STUBS);
+            BiFunction<XPRCClient, Command, ChannelFactoryBuilder> channelFactoryBuilder = Mockito.mock(BiFunction.class, Answers.RETURNS_DEEP_STUBS);
 
             // act
-            ThrowingCallable action = () -> new Command.Builder(commandName, Mockito.mock(Supplier.class, Answers.RETURNS_DEEP_STUBS));
+            ThrowingCallable action = () -> new Command.Builder(client, commandName, channelDecoderFactory, channelFactoryBuilder);
 
             // assert
-            assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class)
+                                      .hasMessageContaining("Not a valid XPRC command name");
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
+        @SuppressWarnings("rawtypes")
         @ParameterizedTest
         @ValueSource(strings = {
             "",
@@ -245,16 +250,17 @@ class CommandTest {
         })
         void testSetOption_invalidOptionName_throwsIllegalArgumentException(String optionName) {
             // arrange
-            Command.Builder builder = new Command.Builder("TEST", Mockito.mock(Supplier.class, Answers.RETURNS_DEEP_STUBS));
+            Command.Builder builder = createBuilder("TEST");
 
             // act
             ThrowingCallable action = () -> builder.setOption(optionName, "value");
 
             // assert
-            assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class)
+                                      .hasMessageContaining("Not a valid XPRC option name");
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
+        @SuppressWarnings("rawtypes")
         @ParameterizedTest
         @ValueSource(strings = {
             "semi;colon",
@@ -263,16 +269,17 @@ class CommandTest {
         })
         void testSetOption_invalidOptionValue_throwsIllegalArgumentException(String optionValue) {
             // arrange
-            Command.Builder builder = new Command.Builder("TEST", Mockito.mock(Supplier.class, Answers.RETURNS_DEEP_STUBS));
+            Command.Builder builder = createBuilder("TEST");
 
             // act
             ThrowingCallable action = () -> builder.setOption("key", optionValue);
 
             // assert
-            assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class)
+                                      .hasMessageContaining("Not a valid XPRC option value");
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
+        @SuppressWarnings("rawtypes")
         @ParameterizedTest
         @ValueSource(strings = {
             "semi;colon",
@@ -280,17 +287,22 @@ class CommandTest {
         })
         void testSetOption_invalidParameter_throwsIllegalArgumentException(String parameter) {
             // arrange
-            Command.Builder builder = new Command.Builder("TEST", Mockito.mock(Supplier.class, Answers.RETURNS_DEEP_STUBS));
+            Command.Builder builder = createBuilder("TEST");
 
             // act
             ThrowingCallable action = () -> builder.addParameter(parameter);
 
             // assert
-            assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class)
+                                      .hasMessageContaining("Parameter cannot be encoded");
         }
     }
 
-    private static Command.Builder<?, ?, ?> createBuilder(String commandName) {
-        return new Command.Builder<>(commandName, null);
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static Command.Builder<?, ?, ?, ?, ?, ?> createBuilder(String commandName) {
+        XPRCClient client = Mockito.mock(XPRCClient.class, Answers.RETURNS_DEEP_STUBS);
+        Supplier<ChannelDecoder<?>> channelDecoderFactory = Mockito.mock(Supplier.class, Answers.RETURNS_DEEP_STUBS);
+        BiFunction<XPRCClient, Command, ChannelFactoryBuilder> channelFactoryBuilder = Mockito.mock(BiFunction.class, Answers.RETURNS_DEEP_STUBS);
+        return new Command.Builder(client, commandName, channelDecoderFactory, channelFactoryBuilder);
     }
 }
