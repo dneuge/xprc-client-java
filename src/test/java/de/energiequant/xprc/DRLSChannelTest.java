@@ -14,10 +14,12 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Answers;
+import org.mockito.Mockito;
 
 import de.energiequant.xprc.types.ValueType;
 
-class DRLSDecoderTest {
+class DRLSChannelTest {
     static Stream<Arguments> provide_payload_datarefTypesAndWritabilityAndName() {
         return Stream.of(
             Arguments.of(
@@ -47,11 +49,12 @@ class DRLSDecoderTest {
     @MethodSource("provide_payload_datarefTypesAndWritabilityAndName")
     void testDecode_validContinuationMessage_resultHoldsExpectedTypes(String payload, Collection<ValueType<?>> expectedTypes, boolean writability, String name) {
         // arrange
-        DRLSDecoder decoder = new DRLSDecoder();
+        Session session = Mockito.mock(Session.class, Answers.RETURNS_DEEP_STUBS);
+        DRLSChannel<?, ?, ?> channel = new DRLSChannel<>(null, session, null);
         ChannelMessage channelMessage = new ChannelMessage(Instant.now(), "+AAAA 1234 " + payload);
 
         // act
-        DRLSMessage result = decoder.decode(channelMessage);
+        DRLSMessage result = channel.decode(channelMessage);
 
         // assert
         assertThat(result).extracting(DRLSMessage::getDataRefDescription)
@@ -64,11 +67,12 @@ class DRLSDecoderTest {
     @MethodSource("provide_payload_datarefTypesAndWritabilityAndName")
     void testDecode_validContinuationMessage_resultHoldsExpectedWritability(String payload, Collection<ValueType<?>> types, boolean expectedWritability, String name) {
         // arrange
-        DRLSDecoder decoder = new DRLSDecoder();
+        Session session = Mockito.mock(Session.class, Answers.RETURNS_DEEP_STUBS);
+        DRLSChannel<?, ?, ?> channel = new DRLSChannel<>(null, session, null);
         ChannelMessage channelMessage = new ChannelMessage(Instant.now(), "+AAAA 1234 " + payload);
 
         // act
-        DRLSMessage result = decoder.decode(channelMessage);
+        DRLSMessage result = channel.decode(channelMessage);
 
         // assert
         assertThat(result).extracting(DRLSMessage::getDataRefDescription)
@@ -81,11 +85,12 @@ class DRLSDecoderTest {
     @MethodSource("provide_payload_datarefTypesAndWritabilityAndName")
     void testDecode_validContinuationMessage_resultHoldsExpectedName(String payload, Collection<ValueType<?>> types, boolean writability, String expectedName) {
         // arrange
-        DRLSDecoder decoder = new DRLSDecoder();
+        Session session = Mockito.mock(Session.class, Answers.RETURNS_DEEP_STUBS);
+        DRLSChannel<?, ?, ?> channel = new DRLSChannel<>(null, session, null);
         ChannelMessage channelMessage = new ChannelMessage(Instant.now(), "+AAAA 1234 " + payload);
 
         // act
-        DRLSMessage result = decoder.decode(channelMessage);
+        DRLSMessage result = channel.decode(channelMessage);
 
         // assert
         assertThat(result).extracting(DRLSMessage::getDataRefDescription)

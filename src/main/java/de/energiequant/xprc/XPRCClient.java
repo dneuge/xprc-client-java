@@ -180,7 +180,7 @@ public class XPRCClient implements Closeable, AutoCloseable {
         return new CommandBuilderFactory(this);
     }
 
-    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CFB prepareChannel(Command.Builder<?, C, CH, CFB, M, ?> commandBuilder) {
+    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CFB prepareChannel(Command.Builder<?, C, CH, CFB, M> commandBuilder) {
         // TODO: does it make sense to keep the builder and instantiate only when actually submitting?
         return prepareChannel(commandBuilder.build());
     }

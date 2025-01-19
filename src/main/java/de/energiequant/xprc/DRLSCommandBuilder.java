@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-public class DRLSCommandBuilder<SELF extends DRLSCommandBuilder<SELF, CH, CFB, C>, CH extends DRLSChannel<CH, CFB, C>, CFB extends DRLSChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRLSMessage>> extends Command.Builder<SELF, C, CH, CFB, DRLSMessage, DRLSDecoder> {
+public class DRLSCommandBuilder<SELF extends DRLSCommandBuilder<SELF, CH, CFB, C>, CH extends DRLSChannel<CH, CFB, C>, CFB extends DRLSChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRLSMessage>> extends Command.Builder<SELF, C, CH, CFB, DRLSMessage> {
     // FIXME: draft/WIP
 
     private static final String READWRITE_OPTION = "rwCheck";
@@ -24,7 +24,7 @@ public class DRLSCommandBuilder<SELF extends DRLSCommandBuilder<SELF, CH, CFB, C
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public DRLSCommandBuilder(XPRCClient client) {
-        super(client, "DRLS", DRLSDecoder::new, (BiFunction<XPRCClient, C, CFB>) (BiFunction) (BiFunction<XPRCClient, C, DRLSChannel.FactoryBuilder>) DRLSChannel.FactoryBuilder::new);
+        super(client, "DRLS", (BiFunction<XPRCClient, C, CFB>) (BiFunction) (BiFunction<XPRCClient, C, DRLSChannel.FactoryBuilder>) DRLSChannel.FactoryBuilder::new);
     }
 
     public SELF withReadWriteCheck(ReadWriteCheck check) {

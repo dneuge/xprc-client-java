@@ -5,14 +5,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> {
     private final String name;
     private final Map<String, String> options;
     private final List<String> parameters;
-    private final Supplier<ChannelDecoder<M>> channelDecoderFactory;
     private final BiFunction<XPRCClient, C, CFB> channelFactoryBuilder;
 
     private static final char SECTION_DELIMITER = ' ';
@@ -22,19 +20,14 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
     private static final char OPTION_DELIMITER = ';';
     private static final char PARAMETER_DELIMITER = ';';
 
-    private Command(String name, Map<String, String> options, List<String> parameters, Supplier<ChannelDecoder<M>> channelDecoderFactory, BiFunction<XPRCClient, C, CFB> channelFactoryBuilder) {
+    private Command(String name, Map<String, String> options, List<String> parameters, BiFunction<XPRCClient, C, CFB> channelFactoryBuilder) {
         // NOTE: This constructor has been intentionally hidden to ensure that all input has been checked by the builder
         //       to report issues where they are actually being entered (not just failing on construction) and to be
         //       able to trust that e.g. options do not need further sanitization when encoding.
         this.name = name;
         this.options = new LinkedHashMap<>(options);
         this.parameters = new ArrayList<>(parameters);
-        this.channelDecoderFactory = channelDecoderFactory;
         this.channelFactoryBuilder = channelFactoryBuilder;
-    }
-
-    public ChannelDecoder<M> createChannelDecoder() {
-        return channelDecoderFactory.get();
     }
 
     @SuppressWarnings("unchecked")
@@ -122,13 +115,12 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
         return sb.toString();
     }
 
-    public static class Builder<B extends Builder<B, C, CH, CFB, M, D>, C extends Command<CFB, CH, C, M>, CH extends Channel<CH, C, M>, CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, M extends ChannelMessage, D extends ChannelDecoder<M>> {
+    public static class Builder<B extends Builder<B, C, CH, CFB, M>, C extends Command<CFB, CH, C, M>, CH extends Channel<CH, C, M>, CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, M extends ChannelMessage> {
         private final String name;
         private final Map<String, String> options = new LinkedHashMap<>();
         private final List<String> parameters = new ArrayList<>();
 
         private final XPRCClient client;
-        private final Supplier<ChannelDecoder<M>> channelDecoderFactory;
         private final BiFunction<XPRCClient, C, CFB> channelFactoryBuilder;
 
         private static final Pattern PATTERN_COMMAND_NAME = Pattern.compile("^[A-Z]{4}$");
@@ -152,14 +144,13 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
             PARAMETER_DELIMITER // FIXME: interim while escapes and server-side implementation are under review
         };
 
-        public Builder(XPRCClient client, String name, Supplier<ChannelDecoder<M>> channelDecoderFactory, BiFunction<XPRCClient, C, CFB> channelFactoryBuilder) {
+        public Builder(XPRCClient client, String name, BiFunction<XPRCClient, C, CFB> channelFactoryBuilder) {
             if (!PATTERN_COMMAND_NAME.matcher(name).matches()) {
                 throw new IllegalArgumentException("Not a valid XPRC command name: \"" + name + "\"");
             }
 
             this.client = client;
             this.name = name;
-            this.channelDecoderFactory = channelDecoderFactory;
             this.channelFactoryBuilder = channelFactoryBuilder;
         }
 
@@ -215,7 +206,7 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
 
         @SuppressWarnings("unchecked")
         public C build() {
-            return (C) new Command<>(name, options, parameters, channelDecoderFactory, channelFactoryBuilder);
+            return (C) new Command<>(name, options, parameters, channelFactoryBuilder);
         }
 
         @SuppressWarnings("unchecked")

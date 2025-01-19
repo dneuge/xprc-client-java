@@ -80,8 +80,26 @@ public class ChannelMessage extends ReceivedMessage {
         return Optional.of(getRaw().substring(rawPayloadOffset));
     }
 
+    /**
+     * Indicates if the {@link ChannelMessage} holds raw payload.
+     * <p>
+     * Command-specific implementations should not override this method, see {@link #containsData()} instead.
+     * </p>
+     *
+     * @return {@code true} if raw payload is present, {@code false} if not
+     * @see #containsData()
+     */
     public boolean hasPayload() {
         return rawPayloadOffset >= 0;
+    }
+
+    /**
+     * Indicates if the command-specific decoded message contains data.
+     *
+     * @return {@code true} if data is present, {@code false} if not
+     */
+    public boolean containsData() {
+        return type != Type.ERROR && hasPayload();
     }
 
     @Override

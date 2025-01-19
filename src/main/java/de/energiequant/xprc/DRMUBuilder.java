@@ -18,7 +18,7 @@ public class DRMUBuilder extends Command.Builder {
     }
 
     public DRMUBuilder(XPRCClient client) {
-        super(client, "DRMU", DRMUDecoder::new, null); // FIXME: stubbed (null factory)
+        super(client, "DRMU", null); // FIXME: stubbed (null factory)
     }
 
     public DRMUBuilder repeatEvery(Interval interval) {

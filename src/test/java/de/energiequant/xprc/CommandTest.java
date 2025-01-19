@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -95,7 +94,7 @@ class CommandTest {
     @MethodSource("provide_validOptions_expectedResult")
     void testEncodeRequest_validOptions_returnsExpectedResult(String channelId, String commandName, Map<String, String> options, String expectedResult) {
         // arrange
-        Command.Builder<?, ?, ?, ?, ?, ?> builder = createBuilder(commandName);
+        Command.Builder<?, ?, ?, ?, ?> builder = createBuilder(commandName);
         for (Map.Entry<String, String> option : options.entrySet()) {
             builder.setOption(option.getKey(), option.getValue());
         }
@@ -196,7 +195,7 @@ class CommandTest {
     @MethodSource("provide_validParameters_expectedResult")
     void testEncodeRequest_validParameters_returnsExpectedResult(String channelId, String commandName, Collection<String> parameters, String expectedResult) {
         // arrange
-        Command.Builder<?, ?, ?, ?, ?, ?> builder = createBuilder(commandName);
+        Command.Builder<?, ?, ?, ?, ?> builder = createBuilder(commandName);
         parameters.forEach(builder::addParameter);
         Command<?, ?, ?, ?> command = builder.build();
 
@@ -226,11 +225,10 @@ class CommandTest {
         void testConstructor_invalidCommandName_throwsIllegalArgumentException(String commandName) {
             // arrange
             XPRCClient client = Mockito.mock(XPRCClient.class, Answers.RETURNS_DEEP_STUBS);
-            Supplier<ChannelDecoder<?>> channelDecoderFactory = Mockito.mock(Supplier.class, Answers.RETURNS_DEEP_STUBS);
             BiFunction<XPRCClient, Command, ChannelFactoryBuilder> channelFactoryBuilder = Mockito.mock(BiFunction.class, Answers.RETURNS_DEEP_STUBS);
 
             // act
-            ThrowingCallable action = () -> new Command.Builder(client, commandName, channelDecoderFactory, channelFactoryBuilder);
+            ThrowingCallable action = () -> new Command.Builder(client, commandName, channelFactoryBuilder);
 
             // assert
             assertThatThrownBy(action).isInstanceOf(IllegalArgumentException.class)
@@ -299,10 +297,9 @@ class CommandTest {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static Command.Builder<?, ?, ?, ?, ?, ?> createBuilder(String commandName) {
+    private static Command.Builder<?, ?, ?, ?, ?> createBuilder(String commandName) {
         XPRCClient client = Mockito.mock(XPRCClient.class, Answers.RETURNS_DEEP_STUBS);
-        Supplier<ChannelDecoder<?>> channelDecoderFactory = Mockito.mock(Supplier.class, Answers.RETURNS_DEEP_STUBS);
         BiFunction<XPRCClient, Command, ChannelFactoryBuilder> channelFactoryBuilder = Mockito.mock(BiFunction.class, Answers.RETURNS_DEEP_STUBS);
-        return new Command.Builder(client, commandName, channelDecoderFactory, channelFactoryBuilder);
+        return new Command.Builder(client, commandName, channelFactoryBuilder);
     }
 }

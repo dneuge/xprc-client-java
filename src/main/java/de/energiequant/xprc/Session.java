@@ -78,16 +78,16 @@ public class Session implements AutoCloseable, Closeable {
         return logPrefix;
     }
 
-    public Channel dispatch(ChannelHandlerBuilder<?, ?> builder) {
-        return null;
-    }
-
     public void terminate(ChannelId id) {
-
+        // FIXME: implement
     }
 
     public boolean isOpen() {
         return !shouldShutdown.get();
+    }
+
+    public XPRCClient getClient() {
+        return client;
     }
 
     private void notifyMonitorsAboutSession(BiConsumer<SessionMonitor, Session> callback) {
@@ -400,7 +400,7 @@ public class Session implements AutoCloseable, Closeable {
         }
     }
 
-    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(Command.Builder<?, C, CH, CFB, M, ?> commandBuilder) {
+    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(Command.Builder<?, C, CH, CFB, M> commandBuilder) {
         return submitCommand(commandBuilder.build());
     }
 
@@ -416,7 +416,7 @@ public class Session implements AutoCloseable, Closeable {
         }
     }
 
-    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(ChannelId channelId, Command.Builder<?, C, CH, CFB, M, ?> commandBuilder) {
+    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(ChannelId channelId, Command.Builder<?, C, CH, CFB, M> commandBuilder) {
         return submitCommand(channelId, commandBuilder);
     }
 

@@ -12,7 +12,12 @@ public class XPRCException extends RuntimeException {
     public enum Consequence {
         UNRECOVERABLE,
         RESOURCE_LEAK,
-        RECONNECT;
+        RECONNECT,
+        /**
+         * The error occurred within a callback given to the XPRC client by the application integrating it. The client
+         * continues regardless; the error should be handled by the application, if relevant.
+         */
+        DOWNSTREAM;
     }
 
     private final transient XPRCClient client;

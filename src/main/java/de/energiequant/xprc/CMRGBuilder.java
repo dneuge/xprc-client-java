@@ -12,7 +12,7 @@ public class CMRGBuilder extends Command.Builder {
     }
 
     public CMRGBuilder(XPRCClient client) {
-        super(client, "CMRG", CMRGDecoder::new, null); // FIXME: stubbed (null factory)
+        super(client, "CMRG", null); // FIXME: stubbed (null factory)
     }
 
     public CMRGBuilder monitoring(MonitorMode mode) {
