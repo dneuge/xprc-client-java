@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.energiequant.xprc.commands.CommandBuilderFactory;
+import de.energiequant.xprc.utils.WaitUtils;
 
 public class XPRCClient implements Closeable, AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(XPRCClient.class);
@@ -113,7 +113,7 @@ public class XPRCClient implements Closeable, AutoCloseable {
             }
 
             LOGGER.debug("{}waiting to reconnect", logPrefix);
-            boolean sleepComplete = sleepFor(connectionParameters.getReconnectDelay(), SLEEP_CHECK_INTERVAL, shutdown::get);
+            boolean sleepComplete = WaitUtils.sleepFor(connectionParameters.getReconnectDelay(), SLEEP_CHECK_INTERVAL, shutdown::get, logPrefix);
             if (!sleepComplete) {
                 LOGGER.warn("{}reconnect timer interrupted, shutting down", logPrefix);
                 break;
@@ -144,27 +144,8 @@ public class XPRCClient implements Closeable, AutoCloseable {
     }
 
     public boolean waitUntilConnected(Duration timeout) {
-        sleepFor(timeout, CONNECT_WAIT_CHECK_INTERVAL, () -> shutdown.get() || isConnected());
+        WaitUtils.sleepFor(timeout, CONNECT_WAIT_CHECK_INTERVAL, () -> shutdown.get() || isConnected(), logPrefix);
         return isConnected();
-    }
-
-    private boolean sleepFor(Duration sleepDuration, Duration checkInterval, BooleanSupplier breakCondition) {
-        long checkIntervalMillis = checkInterval.toMillis();
-
-        Instant endOfSleep = Instant.now().plus(sleepDuration);
-        long millisUntilComplete = Duration.between(Instant.now(), endOfSleep).toMillis();
-        while ((millisUntilComplete > 0) && !breakCondition.getAsBoolean()) {
-            try {
-                Thread.sleep(Math.min(millisUntilComplete, checkIntervalMillis));
-            } catch (InterruptedException ex) {
-                LOGGER.warn("{}Sleep interrupted", logPrefix, ex);
-                return false;
-            }
-
-            millisUntilComplete = Duration.between(Instant.now(), endOfSleep).toMillis();
-        }
-
-        return millisUntilComplete <= 0;
     }
 
     /**
