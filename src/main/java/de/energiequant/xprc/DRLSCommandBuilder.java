@@ -3,6 +3,7 @@ package de.energiequant.xprc;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class DRLSCommandBuilder<SELF extends DRLSCommandBuilder<SELF, CH, CFB, C>, CH extends DRLSChannel<CH, CFB, C>, CFB extends DRLSChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRLSMessage>> extends Command.Builder<SELF, C, CH, CFB, DRLSMessage> {
@@ -24,7 +25,7 @@ public class DRLSCommandBuilder<SELF extends DRLSCommandBuilder<SELF, CH, CFB, C
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public DRLSCommandBuilder(XPRCClient client) {
-        super(client, "DRLS", (BiFunction<XPRCClient, C, CFB>) (BiFunction) (BiFunction<XPRCClient, C, DRLSChannel.FactoryBuilder>) DRLSChannel.FactoryBuilder::new);
+        super(client, "DRLS", (BiFunction<XPRCClient, Supplier<C>, CFB>) (BiFunction) (BiFunction<XPRCClient, Supplier<C>, DRLSChannel.FactoryBuilder>) DRLSChannel.FactoryBuilder::new);
     }
 
     public SELF withReadWriteCheck(ReadWriteCheck check) {

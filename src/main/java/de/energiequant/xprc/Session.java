@@ -400,27 +400,31 @@ public class Session implements AutoCloseable, Closeable {
         }
     }
 
-    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(Command.Builder<?, C, CH, CFB, M> commandBuilder) {
-        return submitCommand(commandBuilder.build());
+    public <CH extends Channel<CH, C, M>, C extends Command<?, CH, C, M>, M extends ChannelMessage> CH submitCommand(ChannelFactory<CH, C, M> channelFactory) {
+        return submitCommand(channelFactory.getCommand(), channelFactory);
     }
 
-    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(C command) {
+    public <CH extends Channel<CH, C, M>, C extends Command<?, CH, C, M>, M extends ChannelMessage> CH submitCommand(Command.Builder<?, C, CH, ?, M> commandBuilder, ChannelFactory<CH, C, M> channelFactory) {
+        return submitCommand(commandBuilder.build(), channelFactory);
+    }
+
+    public <CH extends Channel<CH, C, M>, C extends Command<?, CH, C, M>, M extends ChannelMessage> CH submitCommand(C command, ChannelFactory<CH, C, M> channelFactory) {
         ChannelId channelId = channelPool.allocateChannel()
                                          .orElseThrow(() -> new XPRCException(client, Consequence.RECONNECT, "channels are exhausted"));
 
         try {
-            return submitCommand(channelId, command);
+            return submitCommand(channelId, command, channelFactory);
         } catch (Exception ex) {
             channelPool.dropChannel(channelId);
             throw new XPRCException(client, Consequence.RECONNECT, "Failed to submit command to automatically allocated channel " + channelId, ex);
         }
     }
 
-    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(ChannelId channelId, Command.Builder<?, C, CH, CFB, M> commandBuilder) {
-        return submitCommand(channelId, commandBuilder);
+    public <CH extends Channel<CH, C, M>, C extends Command<?, CH, C, M>, M extends ChannelMessage> CH submitCommand(ChannelId channelId, Command.Builder<?, C, CH, ?, M> commandBuilder, ChannelFactory<CH, C, M> channelFactory) {
+        return submitCommand(channelId, commandBuilder.build(), channelFactory);
     }
 
-    public <CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> CH submitCommand(ChannelId channelId, C command) {
+    public <CH extends Channel<CH, C, M>, C extends Command<?, CH, C, M>, M extends ChannelMessage> CH submitCommand(ChannelId channelId, C command, ChannelFactory<CH, C, M> channelFactory) {
         if (shouldShutdown.get()) {
             LOGGER.warn("{}Session is being shut down, no more commands can be submitted. Got: {}", logPrefix, command);
             throw new XPRCException(client, Consequence.RECONNECT, "Session is being shut down");
@@ -435,8 +439,7 @@ public class Session implements AutoCloseable, Closeable {
             throw new IllegalArgumentException("Command failed to encode: " + command, ex);
         }
 
-        //CH channel = new Channel<>(channelId, this, command);
-        CH channel = null; // FIXME: call CFB
+        CH channel = channelFactory.createChannel(channelId, this, command);
         Channel<?, ?, ?> previousChannel;
         synchronized (channels) {
             previousChannel = channels.putIfAbsent(channelId, channel);

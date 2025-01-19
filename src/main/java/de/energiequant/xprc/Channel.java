@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.energiequant.xprc.utils.WaitUtils;
+
 public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Command<?, SELF, C, M>, M extends ChannelMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Channel.class);
 
@@ -20,9 +22,11 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
     private Instant dispatched;
     private Instant confirmed;
     private Instant closed;
-    private State state = State.PREPARED;
+    private volatile State state = State.PREPARED; // FIXME: should probably be an AtomicReference instead
 
     private final Callbacks<SELF, C, M> externalCallbacks;
+
+    private static final Duration WAIT_CHECK_INTERVAL = Duration.ofMillis(50);
 
     public enum State {
         PREPARED, DISPATCHED, ACKNOWLEDGED, FINISHED, ERROR;
@@ -75,6 +79,10 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
 
         private boolean impliesClosedChannel() {
             return this == ERROR || this == FINISHED;
+        }
+
+        private boolean hasBeenConfirmed() {
+            return this == ACKNOWLEDGED || this == FINISHED || this == ERROR;
         }
     }
 
@@ -184,6 +192,10 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
 
     public C getCommand() {
         return command;
+    }
+
+    public Session getSession() {
+        return session;
     }
 
     void onDispatch() {
@@ -496,7 +508,8 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
      * @see #getCommandState()
      */
     public SELF waitUntilConfirmed(Duration timeout) {
-        // FIXME: implement
+        // FIXME: use object monitor instead (synchronize over state to remove "volatile" flag as well)
+        WaitUtils.sleepFor(timeout, WAIT_CHECK_INTERVAL, () -> state.hasBeenConfirmed(), channelLogPrefix);
         return (SELF) this;
     }
 
@@ -514,7 +527,8 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
      * @see #getCommandState()
      */
     public SELF waitUntilTerminated(Duration timeout) {
-        // FIXME: implement
+        // FIXME: use object monitor instead (synchronize over state to remove "volatile" flag as well)
+        WaitUtils.sleepFor(timeout, WAIT_CHECK_INTERVAL, () -> state.impliesClosedChannel(), channelLogPrefix);
         return (SELF) this;
     }
 

@@ -67,6 +67,11 @@ public class DRLSMessage extends ChannelMessage {
     }
 
     @Override
+    public boolean containsData() {
+        return dataRefDescription != null;
+    }
+
+    @Override
     protected void toString(StringBuilder sb) {
         sb.append(", ");
         sb.append(dataRefDescription);

@@ -3,6 +3,7 @@ package de.energiequant.xprc;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import de.energiequant.xprc.Channel.StateChangeCallback;
 
@@ -25,14 +26,14 @@ import de.energiequant.xprc.Channel.StateChangeCallback;
  * @param <C>    the specific {@link Command}
  * @param <M>    the specific {@link ChannelMessage} of a {@link Command}
  */
-public class ChannelFactoryBuilder<SELF extends ChannelFactoryBuilder<SELF, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<SELF, CH, C, M>, M extends ChannelMessage> {
+public abstract class ChannelFactoryBuilder<SELF extends ChannelFactoryBuilder<SELF, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<SELF, CH, C, M>, M extends ChannelMessage> {
     private final XPRCClient client;
-    private final C command;
+    private final Supplier<C> commandFactory;
     private final Channel.Callbacks.Builder<CH, C, M> callbackBuilder = Channel.Callbacks.builder();
 
-    protected ChannelFactoryBuilder(XPRCClient client, C command) {
+    protected ChannelFactoryBuilder(XPRCClient client, Supplier<C> commandFactory) {
         this.client = client;
-        this.command = command;
+        this.commandFactory = commandFactory;
     }
 
     @SuppressWarnings("unchecked")
@@ -90,5 +91,11 @@ public class ChannelFactoryBuilder<SELF extends ChannelFactoryBuilder<SELF, CH, 
     public CH submit(ChannelId channelId) {
         return null;
     }
+
+    public ChannelFactory<CH, C, M> build() {
+        return buildSpecificFactory(commandFactory, callbackBuilder.build());
+    }
+
+    protected abstract ChannelFactory<CH, C, M> buildSpecificFactory(Supplier<C> commandFactory, Channel.Callbacks<CH, C, M> externalCallbacks);
 }
 

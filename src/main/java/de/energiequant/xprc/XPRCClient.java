@@ -176,9 +176,7 @@ public class XPRCClient implements Closeable, AutoCloseable {
             return Optional.empty();
         }
 
-        //session.
-
-        return Optional.empty();
+        return Optional.of(sessionAtTimeOfCall.submitCommand(channelFactoryBuilder.build()));
     }
 
     private Session connect() {

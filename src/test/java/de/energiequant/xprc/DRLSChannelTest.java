@@ -45,12 +45,13 @@ class DRLSChannelTest {
         );
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @ParameterizedTest
     @MethodSource("provide_payload_datarefTypesAndWritabilityAndName")
     void testDecode_validContinuationMessage_resultHoldsExpectedTypes(String payload, Collection<ValueType<?>> expectedTypes, boolean writability, String name) {
         // arrange
         Session session = Mockito.mock(Session.class, Answers.RETURNS_DEEP_STUBS);
-        DRLSChannel<?, ?, ?> channel = new DRLSChannel<>(null, session, null);
+        DRLSChannel channel = new DRLSChannel(null, session, null, Channel.Callbacks.builder().build(), null);
         ChannelMessage channelMessage = new ChannelMessage(Instant.now(), "+AAAA 1234 " + payload);
 
         // act
@@ -63,12 +64,13 @@ class DRLSChannelTest {
                           .containsExactlyInAnyOrderElementsOf(expectedTypes);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @ParameterizedTest
     @MethodSource("provide_payload_datarefTypesAndWritabilityAndName")
     void testDecode_validContinuationMessage_resultHoldsExpectedWritability(String payload, Collection<ValueType<?>> types, boolean expectedWritability, String name) {
         // arrange
         Session session = Mockito.mock(Session.class, Answers.RETURNS_DEEP_STUBS);
-        DRLSChannel<?, ?, ?> channel = new DRLSChannel<>(null, session, null);
+        DRLSChannel channel = new DRLSChannel(null, session, null, Channel.Callbacks.builder().build(), null);
         ChannelMessage channelMessage = new ChannelMessage(Instant.now(), "+AAAA 1234 " + payload);
 
         // act
@@ -81,12 +83,13 @@ class DRLSChannelTest {
                           .isEqualTo(expectedWritability);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @ParameterizedTest
     @MethodSource("provide_payload_datarefTypesAndWritabilityAndName")
     void testDecode_validContinuationMessage_resultHoldsExpectedName(String payload, Collection<ValueType<?>> types, boolean writability, String expectedName) {
         // arrange
         Session session = Mockito.mock(Session.class, Answers.RETURNS_DEEP_STUBS);
-        DRLSChannel<?, ?, ?> channel = new DRLSChannel<>(null, session, null);
+        DRLSChannel channel = new DRLSChannel(null, session, null, Channel.Callbacks.builder().build(), null);
         ChannelMessage channelMessage = new ChannelMessage(Instant.now(), "+AAAA 1234 " + payload);
 
         // act
