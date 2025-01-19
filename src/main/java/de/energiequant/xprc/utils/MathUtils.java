@@ -9,9 +9,9 @@ public class MathUtils {
      * Calculates the exact integer-based power. Callers must ensure that the result remains in integer range, meaning
      * this method should only be used to process known constants at this time.
      *
-     * @param base
-     * @param exponent
-     * @return
+     * @param base     integer base
+     * @param exponent integer exponent
+     * @return integer result
      */
     public static int intPow(int base, int exponent) {
         if (exponent < 0) {
