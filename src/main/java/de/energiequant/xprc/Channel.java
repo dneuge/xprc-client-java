@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Command<?, SELF, C, M>, M extends ChannelMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Channel.class);
 
-    private final String sessionLogPrefix;
+    private final String channelLogPrefix;
     private final ChannelId id;
     private final C command;
     private final Session session;
@@ -179,7 +179,7 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
         this.session = session;
         this.externalCallbacks = externalCallbacks;
 
-        this.sessionLogPrefix = session.getLogPrefix();
+        this.channelLogPrefix = session.getLogPrefix() + "[" + id + "] ";
     }
 
     public C getCommand() {
@@ -221,14 +221,14 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
             }
 
             M msg = decode(channelMessage);
-            LOGGER.debug("{}[{}] received: {}", sessionLogPrefix, id, msg);
+            LOGGER.debug("{}received: {}", channelLogPrefix, msg);
 
             ReceivedMessage.Type messageType = msg.getType();
 
             // state transition includes validation; we should validate before we continue
             State newState = state.transition(messageType);
             if (newState != state) {
-                LOGGER.debug("{}[{}] command state {} => {}", sessionLogPrefix, id, state, newState);
+                LOGGER.debug("{}command state {} => {}", channelLogPrefix, state, newState);
                 handleStateChanging(state, newState, msg);
             }
 
