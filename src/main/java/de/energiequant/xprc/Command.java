@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
@@ -213,6 +214,14 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
         public CFB prepareChannel() {
             // cast is needed due to work around type confusion at compile time
             return client.prepareChannel(Builder.this);
+        }
+
+        public Optional<CH> submit() {
+            return prepareChannel().submit();
+        }
+
+        public CH submit(ChannelId channelId) {
+            return prepareChannel().submit(channelId);
         }
     }
 }
