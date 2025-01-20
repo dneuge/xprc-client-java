@@ -43,7 +43,14 @@ public class DRLSMessage extends ChannelMessage {
             sb.append(", writable=");
             sb.append(writable);
             sb.append(", types={");
+            boolean isFirst = true;
             for (ValueType type : types) {
+                if (isFirst) {
+                    isFirst = false;
+                } else {
+                    sb.append(", ");
+                }
+                
                 sb.append(type);
             }
             sb.append("})");
