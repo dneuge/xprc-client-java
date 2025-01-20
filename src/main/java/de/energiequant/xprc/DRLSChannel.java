@@ -49,33 +49,6 @@ public class DRLSChannel<SELF extends DRLSChannel<SELF, CFB, C>, CFB extends DRL
         }
     }
 
-    public static class FactoryBuilder<SELF extends FactoryBuilder<SELF, CH, C>, CH extends DRLSChannel<CH, SELF, C>, C extends Command<SELF, CH, C, DRLSMessage>> extends ChannelFactoryBuilder<SELF, CH, C, DRLSMessage> {
-        private BiConsumer<SELF, DataRefDescription> onDataRef;
-
-        public FactoryBuilder(XPRCClient client, Supplier<C> commandFactory) {
-            super(client, commandFactory);
-        }
-
-        @Override
-        protected ChannelFactory<CH, C, DRLSMessage> buildSpecificFactory(Supplier<C> commandFactory, Callbacks<CH, C, DRLSMessage> externalCallbacks) {
-            final BiConsumer<SELF, DataRefDescription> onDataRefCopy = onDataRef;
-
-            return new ChannelFactory<CH, C, DRLSMessage>(commandFactory) {
-                @SuppressWarnings({"unchecked", "rawtypes"})
-                @Override
-                CH createChannel(ChannelId channelId, Session session, C command) {
-                    return (CH) new DRLSChannel(channelId, session, command, externalCallbacks, onDataRefCopy);
-                }
-            };
-        }
-
-        @SuppressWarnings("unchecked")
-        public SELF onDataRef(BiConsumer<SELF, DataRefDescription> callback) {
-            this.onDataRef = callback;
-            return (SELF) this;
-        }
-    }
-
     @Override
     protected DRLSMessage decode(ChannelMessage msg) {
         String payload = msg.getRawPayload().orElse(null);
@@ -113,5 +86,32 @@ public class DRLSChannel<SELF extends DRLSChannel<SELF, CFB, C>, CFB extends DRL
         String name = payload.substring(startOfName);
 
         return new DRLSMessage(msg, new DataRefDescription(name, writable, types));
+    }
+
+    public static class FactoryBuilder<SELF extends FactoryBuilder<SELF, CH, C>, CH extends DRLSChannel<CH, SELF, C>, C extends Command<SELF, CH, C, DRLSMessage>> extends ChannelFactoryBuilder<SELF, CH, C, DRLSMessage> {
+        private BiConsumer<SELF, DataRefDescription> onDataRef;
+
+        public FactoryBuilder(XPRCClient client, Supplier<C> commandFactory) {
+            super(client, commandFactory);
+        }
+
+        @Override
+        protected ChannelFactory<CH, C, DRLSMessage> buildSpecificFactory(Supplier<C> commandFactory, Callbacks<CH, C, DRLSMessage> externalCallbacks) {
+            final BiConsumer<SELF, DataRefDescription> onDataRefCopy = onDataRef;
+
+            return new ChannelFactory<CH, C, DRLSMessage>(commandFactory) {
+                @SuppressWarnings({"unchecked", "rawtypes"})
+                @Override
+                CH createChannel(ChannelId channelId, Session session, C command) {
+                    return (CH) new DRLSChannel(channelId, session, command, externalCallbacks, onDataRefCopy);
+                }
+            };
+        }
+
+        @SuppressWarnings("unchecked")
+        public SELF onDataRef(BiConsumer<SELF, DataRefDescription> callback) {
+            this.onDataRef = callback;
+            return (SELF) this;
+        }
     }
 }
