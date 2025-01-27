@@ -9,8 +9,27 @@ class DoubleValueType implements ValueType<Double> {
     }
 
     @Override
-    public String serialize(Double value) {
-        return value.toString();
+    public String serialize(Object value) {
+        if (value instanceof Double || value instanceof Float || value instanceof Integer) {
+            return value.toString();
+        }
+
+        throw new IllegalArgumentException("Unsupported type: " + value.getClass().getCanonicalName());
+    }
+
+    @Override
+    public String serialize(int value) {
+        return Integer.toString(value);
+    }
+
+    @Override
+    public String serialize(float value) {
+        return Float.toString(value);
+    }
+
+    @Override
+    public String serialize(double value) {
+        return Double.toString(value);
     }
 
     @Override

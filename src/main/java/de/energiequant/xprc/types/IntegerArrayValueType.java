@@ -20,6 +20,34 @@ class IntegerArrayValueType implements ValueType<int[]> {
     }
 
     @Override
+    public String serialize(Object value) {
+        if (value instanceof int[]) {
+            return serialize((int[]) value);
+        }
+
+        if (value instanceof float[] || value instanceof double[]) {
+            throw new IllegalArgumentException("Conversion is not supported yet, got: " + value.getClass().getCanonicalName());
+        }
+
+        throw new IllegalArgumentException("Unsupported type: " + value.getClass().getCanonicalName());
+    }
+
+    @Override
+    public String serialize(int value) {
+        throw new IllegalArgumentException("Unsupported type: int");
+    }
+
+    @Override
+    public String serialize(float value) {
+        throw new IllegalArgumentException("Unsupported type: float");
+    }
+
+    @Override
+    public String serialize(double value) {
+        throw new IllegalArgumentException("Unsupported type: double");
+    }
+
+    @Override
     public int[] deserialize(String s) {
         String[] split = s.split(",");
         if (split.length < 1) {

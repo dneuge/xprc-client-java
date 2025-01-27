@@ -9,8 +9,31 @@ class FloatValueType implements ValueType<Float> {
     }
 
     @Override
-    public String serialize(Float value) {
-        return value.toString();
+    public String serialize(Object value) {
+        if (value instanceof Float || value instanceof Integer) {
+            return value.toString();
+        }
+
+        if (value instanceof Double) {
+            return serialize(((Double) value).floatValue());
+        }
+
+        throw new IllegalArgumentException("Unsupported type: " + value.getClass().getCanonicalName());
+    }
+
+    @Override
+    public String serialize(int value) {
+        return Integer.toString(value);
+    }
+
+    @Override
+    public String serialize(float value) {
+        return Float.toString(value);
+    }
+
+    @Override
+    public String serialize(double value) {
+        return serialize((float) value);
     }
 
     @Override

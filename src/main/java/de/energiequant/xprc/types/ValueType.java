@@ -14,6 +14,14 @@ public interface ValueType<T> {
 
     String getEncodedTypeName();
 
+    String serialize(Object value);
+
+    String serialize(int value);
+
+    String serialize(float value);
+
+    String serialize(double value);
+
     T deserialize(String s);
 
     static Optional<ValueType<?>> resolve(String encodedTypeName) {
