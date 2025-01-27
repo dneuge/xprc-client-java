@@ -5,7 +5,9 @@ import de.energiequant.xprc.Command;
 import de.energiequant.xprc.DRLSChannel;
 import de.energiequant.xprc.DRLSCommandBuilder;
 import de.energiequant.xprc.DRLSMessage;
-import de.energiequant.xprc.DRMUBuilder;
+import de.energiequant.xprc.DRMUChannel;
+import de.energiequant.xprc.DRMUCommandBuilder;
+import de.energiequant.xprc.DRMUMessage;
 import de.energiequant.xprc.XPRCClient;
 
 public class CommandBuilderFactory {
@@ -26,7 +28,7 @@ public class CommandBuilderFactory {
             return rootFactory.drls();
         }
 
-        public DRMUBuilder manipulateUncontrolled() {
+        public <CB extends DRMUCommandBuilder<CB, CH, CFB, C>, CH extends DRMUChannel<CH, CFB, C>, CFB extends DRMUChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRMUMessage>> CB manipulateUncontrolled() {
             return rootFactory.drmu();
         }
     }
@@ -62,7 +64,8 @@ public class CommandBuilderFactory {
         return (CB) new DRLSCommandBuilder<CB, CH, CFB, C>(client);
     }
 
-    public DRMUBuilder drmu() {
-        return new DRMUBuilder(client);
+    @SuppressWarnings("unchecked")
+    public <CB extends DRMUCommandBuilder<CB, CH, CFB, C>, CH extends DRMUChannel<CH, CFB, C>, CFB extends DRMUChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRMUMessage>> CB drmu() {
+        return (CB) new DRMUCommandBuilder<CB, CH, CFB, C>(client);
     }
 }
