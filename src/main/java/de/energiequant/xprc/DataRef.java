@@ -3,10 +3,15 @@ package de.energiequant.xprc;
 import de.energiequant.xprc.types.ValueType;
 
 public class DataRef<T> {
-    // FIXME: draft/WIP
+    // FIXME: draft/WIP - do we need support for DataRefs of unknown type? how to represent?
 
-    private ValueType<T> type;
-    private String name;
+    private final ValueType<T> type;
+    private final String name;
+
+    private DataRef(ValueType<T> type, String name) {
+        this.type = type;
+        this.name = name;
+    }
 
     public String getName() {
         return name;
@@ -17,10 +22,6 @@ public class DataRef<T> {
     }
 
     public static <U> DataRef<U> of(ValueType<U> type, String name) {
-        return null;
-    }
-
-    public static DataRef<?> withUnknownType(String name) {
-        return null;
+        return new DataRef<>(type, name);
     }
 }
