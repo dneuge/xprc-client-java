@@ -12,28 +12,28 @@ public interface ValueType<T> {
 
     String name();
 
-    String serialize(T value);
+    String getEncodedTypeName();
 
     T deserialize(String s);
 
     static Optional<ValueType<?>> resolve(String encodedTypeName) {
         switch (encodedTypeName) {
-            case "int":
+            case IntegerValueType.ENCODED_TYPE_NAME:
                 return Optional.of(INTEGER);
 
-            case "float":
+            case FloatValueType.ENCODED_TYPE_NAME:
                 return Optional.of(FLOAT);
 
-            case "double":
+            case DoubleValueType.ENCODED_TYPE_NAME:
                 return Optional.of(DOUBLE);
 
-            case "int[]":
+            case IntegerArrayValueType.ENCODED_TYPE_NAME:
                 return Optional.of(INTEGER_ARRAY);
 
-            case "float[]":
+            case FloatArrayValueType.ENCODED_TYPE_NAME:
                 return Optional.of(FLOAT_ARRAY);
 
-            case "blob":
+            case BlobValueType.ENCODED_TYPE_NAME:
                 return Optional.of(BLOB);
 
             default:

@@ -1,6 +1,12 @@
 package de.energiequant.xprc.types;
 
 class IntegerValueType implements ValueType<Integer> {
+    public static final String ENCODED_TYPE_NAME = "int";
+
+    @Override
+    public String getEncodedTypeName() {
+        return ENCODED_TYPE_NAME;
+    }
 
     @Override
     public String serialize(Integer value) {

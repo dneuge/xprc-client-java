@@ -1,8 +1,13 @@
 package de.energiequant.xprc.types;
 
 class IntegerArrayValueType implements ValueType<int[]> {
+    public static final String ENCODED_TYPE_NAME = "int[]";
 
     @Override
+    public String getEncodedTypeName() {
+        return ENCODED_TYPE_NAME;
+    }
+
     public String serialize(int[] value) {
         StringBuilder sb = new StringBuilder(Integer.toString(value.length));
 
