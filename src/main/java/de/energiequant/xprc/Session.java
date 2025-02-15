@@ -70,8 +70,6 @@ public class Session implements AutoCloseable, Closeable {
         processingThread = new Thread(this::runProcessingThread);
         processingThread.setName(XPRCClient.class.getSimpleName() + " " + client.getConnectionParameters().getAlias() + " processing");
         processingThread.start();
-
-        notifyMonitorsAboutSession(SessionMonitor::onConnected);
     }
 
     public String getLogPrefix() {
@@ -255,6 +253,8 @@ public class Session implements AutoCloseable, Closeable {
     void runSendThread() {
         String sendLogPrefix = logPrefix + "[send] ";
         LOGGER.debug("{}starting", sendLogPrefix);
+
+        notifyMonitorsAboutSession(SessionMonitor::onConnected);
 
         long sendQueueTimeoutMillis = SEND_QUEUE_TIMEOUT.toMillis();
 
