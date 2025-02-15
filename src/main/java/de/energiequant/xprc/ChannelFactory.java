@@ -13,5 +13,5 @@ public abstract class ChannelFactory<CH extends Channel<CH, C, M>, C extends Com
         return commandFactory.get();
     }
 
-    abstract CH createChannel(ChannelId channelId, Session session, C command);
+    protected abstract CH createChannel(ChannelId channelId, Session session, C command);
 }

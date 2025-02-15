@@ -1,6 +1,15 @@
-package de.energiequant.xprc;
+package de.energiequant.xprc.commands;
 
 import java.util.function.Supplier;
+
+import de.energiequant.xprc.Channel;
+import de.energiequant.xprc.ChannelFactory;
+import de.energiequant.xprc.ChannelFactoryBuilder;
+import de.energiequant.xprc.ChannelId;
+import de.energiequant.xprc.ChannelMessage;
+import de.energiequant.xprc.Command;
+import de.energiequant.xprc.Session;
+import de.energiequant.xprc.XPRCClient;
 
 public class CMRGChannel<SELF extends CMRGChannel<SELF, CFB, C>, CFB extends CMRGChannel.FactoryBuilder<CFB, SELF, C>, C extends Command<CFB, SELF, C, CMRGMessage>> extends Channel<SELF, C, CMRGMessage> {
     public CMRGChannel(ChannelId id, Session session, C command, Callbacks<SELF, C, CMRGMessage> externalCallbacks) {
@@ -37,7 +46,7 @@ public class CMRGChannel<SELF extends CMRGChannel<SELF, CFB, C>, CFB extends CMR
             return new ChannelFactory<CH, C, CMRGMessage>(commandFactory) {
                 @SuppressWarnings({"rawtypes", "unchecked"})
                 @Override
-                CH createChannel(ChannelId channelId, Session session, C command) {
+                protected CH createChannel(ChannelId channelId, Session session, C command) {
                     return (CH) new CMRGChannel(channelId, session, command, externalCallbacks);
                 }
             };

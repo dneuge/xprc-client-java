@@ -1,16 +1,14 @@
-package de.energiequant.xprc.commands;
+package de.energiequant.xprc;
 
-import de.energiequant.xprc.CMRGChannel;
-import de.energiequant.xprc.CMRGCommandBuilder;
-import de.energiequant.xprc.CMRGMessage;
-import de.energiequant.xprc.Command;
-import de.energiequant.xprc.DRLSChannel;
-import de.energiequant.xprc.DRLSCommandBuilder;
-import de.energiequant.xprc.DRLSMessage;
-import de.energiequant.xprc.DRMUChannel;
-import de.energiequant.xprc.DRMUCommandBuilder;
-import de.energiequant.xprc.DRMUMessage;
-import de.energiequant.xprc.XPRCClient;
+import de.energiequant.xprc.commands.CMRGChannel;
+import de.energiequant.xprc.commands.CMRGCommandBuilder;
+import de.energiequant.xprc.commands.CMRGMessage;
+import de.energiequant.xprc.commands.DRLSChannel;
+import de.energiequant.xprc.commands.DRLSCommandBuilder;
+import de.energiequant.xprc.commands.DRLSMessage;
+import de.energiequant.xprc.commands.DRMUChannel;
+import de.energiequant.xprc.commands.DRMUCommandBuilder;
+import de.energiequant.xprc.commands.DRMUMessage;
 
 public class CommandBuilderFactory {
     private final XPRCClient client;

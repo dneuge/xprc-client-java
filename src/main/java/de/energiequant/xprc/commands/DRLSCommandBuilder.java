@@ -1,10 +1,14 @@
-package de.energiequant.xprc;
+package de.energiequant.xprc.commands;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import de.energiequant.xprc.Command;
+import de.energiequant.xprc.DataRef;
+import de.energiequant.xprc.XPRCClient;
 
 public class DRLSCommandBuilder<SELF extends DRLSCommandBuilder<SELF, CH, CFB, C>, CH extends DRLSChannel<CH, CFB, C>, CFB extends DRLSChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRLSMessage>> extends Command.Builder<SELF, C, CH, CFB, DRLSMessage> {
     // FIXME: draft/WIP

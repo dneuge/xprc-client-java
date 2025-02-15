@@ -1,4 +1,4 @@
-package de.energiequant.xprc;
+package de.energiequant.xprc.commands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +9,16 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import de.energiequant.xprc.DRLSMessage.DataRefDescription;
+import de.energiequant.xprc.Channel;
+import de.energiequant.xprc.ChannelFactory;
+import de.energiequant.xprc.ChannelFactoryBuilder;
+import de.energiequant.xprc.ChannelId;
+import de.energiequant.xprc.ChannelMessage;
+import de.energiequant.xprc.Command;
+import de.energiequant.xprc.Session;
+import de.energiequant.xprc.XPRCClient;
+import de.energiequant.xprc.XPRCException;
+import de.energiequant.xprc.commands.DRLSMessage.DataRefDescription;
 import de.energiequant.xprc.types.ValueType;
 
 public class DRLSChannel<SELF extends DRLSChannel<SELF, CFB, C>, CFB extends DRLSChannel.FactoryBuilder<CFB, SELF, C>, C extends Command<CFB, SELF, C, DRLSMessage>> extends Channel<SELF, C, DRLSMessage> {
@@ -103,7 +112,7 @@ public class DRLSChannel<SELF extends DRLSChannel<SELF, CFB, C>, CFB extends DRL
             return new ChannelFactory<CH, C, DRLSMessage>(commandFactory) {
                 @SuppressWarnings({"unchecked", "rawtypes"})
                 @Override
-                CH createChannel(ChannelId channelId, Session session, C command) {
+                protected CH createChannel(ChannelId channelId, Session session, C command) {
                     return (CH) new DRLSChannel(channelId, session, command, externalCallbacks, onDataRefCopy);
                 }
             };

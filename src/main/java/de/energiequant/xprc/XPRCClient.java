@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.energiequant.xprc.commands.CommandBuilderFactory;
 import de.energiequant.xprc.utils.WaitUtils;
 
 public class XPRCClient implements Closeable, AutoCloseable {
@@ -127,7 +126,7 @@ public class XPRCClient implements Closeable, AutoCloseable {
         LOGGER.debug("{}stopped", logPrefix);
     }
 
-    Consumer<XPRCException> getExceptionHandler() {
+    public Consumer<XPRCException> getExceptionHandler() {
         return exceptionHandler;
     }
 

@@ -1,4 +1,4 @@
-package de.energiequant.xprc;
+package de.energiequant.xprc.commands;
 
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,6 +17,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.mockito.Mockito;
 
+import de.energiequant.xprc.Channel;
+import de.energiequant.xprc.ChannelMessage;
+import de.energiequant.xprc.Session;
 import de.energiequant.xprc.types.ValueType;
 
 class DRLSChannelTest {

@@ -1,4 +1,4 @@
-package de.energiequant.xprc;
+package de.energiequant.xprc.commands;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import de.energiequant.xprc.ChannelMessage;
 import de.energiequant.xprc.types.ValueType;
 
 public class DRLSMessage extends ChannelMessage {
@@ -50,7 +51,7 @@ public class DRLSMessage extends ChannelMessage {
                 } else {
                     sb.append(", ");
                 }
-                
+
                 sb.append(type);
             }
             sb.append("})");

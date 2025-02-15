@@ -1,9 +1,13 @@
-package de.energiequant.xprc;
+package de.energiequant.xprc.commands;
 
 import java.time.Duration;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import de.energiequant.xprc.Command;
+import de.energiequant.xprc.DataRef;
+import de.energiequant.xprc.Interval;
+import de.energiequant.xprc.XPRCClient;
 import de.energiequant.xprc.types.ValueType;
 
 public class DRMUCommandBuilder<SELF extends DRMUCommandBuilder<SELF, CH, CFB, C>, CH extends DRMUChannel<CH, CFB, C>, CFB extends DRMUChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRMUMessage>> extends Command.Builder<SELF, C, CH, CFB, DRMUMessage> {

@@ -1,7 +1,10 @@
-package de.energiequant.xprc;
+package de.energiequant.xprc.commands;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+
+import de.energiequant.xprc.Command;
+import de.energiequant.xprc.XPRCClient;
 
 public class CMRGCommandBuilder<SELF extends CMRGCommandBuilder<SELF, CH, CFB, C>, CH extends CMRGChannel<CH, CFB, C>, CFB extends CMRGChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMRGMessage>> extends Command.Builder<SELF, C, CH, CFB, CMRGMessage> {
     // FIXME: draft/WIP

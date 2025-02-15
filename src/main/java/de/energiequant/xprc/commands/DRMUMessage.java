@@ -1,4 +1,6 @@
-package de.energiequant.xprc;
+package de.energiequant.xprc.commands;
+
+import de.energiequant.xprc.ChannelMessage;
 
 public class DRMUMessage extends ChannelMessage {
     // FIXME: draft/WIP
