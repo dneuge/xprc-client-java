@@ -39,6 +39,7 @@ public class DRLSChannel<SELF extends DRLSChannel<SELF, CFB, C>, CFB extends DRL
             receivedDataRefs.add(description);
         }
 
+        // TODO: general callback happens only after the specific one; do we need an extra phase in Channel#handleDataMessage?
         if (onDataRef != null) {
             try {
                 onDataRef.accept((SELF) this, description);

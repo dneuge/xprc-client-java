@@ -431,6 +431,7 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
 
     @SuppressWarnings("unchecked")
     private void handleDataMessage(M msg) {
+        // TODO: some channels call listeners onDataMessage which may not make sense before the general callbacks are processed - do we need an extra phase?
         onDataMessage(msg);
 
         if (externalCallbacks.onDataMessage != null) {
