@@ -188,6 +188,32 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
             return (B) this;
         }
 
+        @SuppressWarnings("unchecked")
+        public B setParameter(int index, String parameter) {
+            if (parameters.size() == index) {
+                return addParameter(parameter);
+            }
+
+            if (!containsOnlySupportedCharacters(parameter, PROHIBITED_CHARACTERS_PARAMETER)) {
+                throw new IllegalArgumentException("Parameter cannot be encoded: \"" + parameter + "\"");
+            }
+
+            parameters.set(index, parameter);
+
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B removeParameter(int index) {
+            parameters.remove(index);
+
+            return (B) this;
+        }
+
+        public int countParameters() {
+            return parameters.size();
+        }
+
         private boolean containsOnlySupportedCharacters(String s, char[] extraProhibitedChars) {
             for (char ch : s.toCharArray()) {
                 // protocol is limited to US-ASCII, control characters are not allowed
