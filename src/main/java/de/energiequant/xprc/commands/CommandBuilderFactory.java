@@ -1,6 +1,8 @@
 package de.energiequant.xprc.commands;
 
-import de.energiequant.xprc.CMRGBuilder;
+import de.energiequant.xprc.CMRGChannel;
+import de.energiequant.xprc.CMRGCommandBuilder;
+import de.energiequant.xprc.CMRGMessage;
 import de.energiequant.xprc.Command;
 import de.energiequant.xprc.DRLSChannel;
 import de.energiequant.xprc.DRLSCommandBuilder;
@@ -42,7 +44,7 @@ public class CommandBuilderFactory {
             this.rootFactory = rootFactory;
         }
 
-        public CMRGBuilder register() {
+        public <CB extends CMRGCommandBuilder<CB, CH, CFB, C>, CH extends CMRGChannel<CH, CFB, C>, CFB extends CMRGChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMRGMessage>> CB register() {
             return rootFactory.cmrg();
         }
     }
@@ -55,8 +57,9 @@ public class CommandBuilderFactory {
         return new CommandCommandBuilderFactory(this);
     }
 
-    public CMRGBuilder cmrg() {
-        return new CMRGBuilder(client);
+    @SuppressWarnings("unchecked")
+    public <CB extends CMRGCommandBuilder<CB, CH, CFB, C>, CH extends CMRGChannel<CH, CFB, C>, CFB extends CMRGChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMRGMessage>> CB cmrg() {
+        return (CB) new CMRGCommandBuilder<CB, CH, CFB, C>(client);
     }
 
     @SuppressWarnings("unchecked")
