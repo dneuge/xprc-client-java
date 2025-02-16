@@ -254,7 +254,11 @@ public class Session implements AutoCloseable, Closeable {
         String sendLogPrefix = logPrefix + "[send] ";
         LOGGER.debug("{}starting", sendLogPrefix);
 
-        notifyMonitorsAboutSession(SessionMonitor::onConnected);
+        // callback may depend on this thread continuing so we need to notify using a separate thread
+        // TODO: check for a better way to notify without blocking the send thread (callback may depend on flushing send queue/receiveing responses to commands)
+        Thread connectNotificationThread = new Thread(() -> notifyMonitorsAboutSession(SessionMonitor::onConnected));
+        connectNotificationThread.setName(XPRCClient.class.getSimpleName() + " " + client.getConnectionParameters().getAlias() + " onConnected");
+        connectNotificationThread.start();
 
         long sendQueueTimeoutMillis = SEND_QUEUE_TIMEOUT.toMillis();
 
@@ -299,6 +303,13 @@ public class Session implements AutoCloseable, Closeable {
         } catch (InterruptedException ex) {
             throw new XPRCException(client, Consequence.UNRECOVERABLE, "Send thread was interrupted", ex);
         } finally {
+            LOGGER.debug("{}joining connect notification thread", sendLogPrefix);
+            try {
+                connectNotificationThread.join();
+            } catch (InterruptedException ex) {
+                LOGGER.warn("{}interrupted while trying to join connect notification thread while stopping", sendLogPrefix);
+            }
+
             LOGGER.debug("{}stopping", sendLogPrefix);
             shutdown();
         }
