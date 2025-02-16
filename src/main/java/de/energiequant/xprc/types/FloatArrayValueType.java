@@ -2,6 +2,7 @@ package de.energiequant.xprc.types;
 
 class FloatArrayValueType implements ValueType<float[]> {
     // FIXME: implement
+    // TODO: unit tests
 
     public static final String ENCODED_TYPE_NAME = "float[]";
 
@@ -15,8 +16,23 @@ class FloatArrayValueType implements ValueType<float[]> {
         return true;
     }
 
+    public String serialize(float[] value) {
+        StringBuilder sb = new StringBuilder(Integer.toString(value.length));
+
+        for (float v : value) {
+            sb.append(",");
+            sb.append(v);
+        }
+
+        return sb.toString();
+    }
+
     @Override
     public String serialize(Object value) {
+        if (value instanceof float[]) {
+            return serialize((float[]) value);
+        }
+
         throw new UnsupportedOperationException("not implemented yet");
     }
 
