@@ -3,6 +3,9 @@ package de.energiequant.xprc;
 import de.energiequant.xprc.commands.CMRGChannel;
 import de.energiequant.xprc.commands.CMRGCommandBuilder;
 import de.energiequant.xprc.commands.CMRGMessage;
+import de.energiequant.xprc.commands.DRCIChannel;
+import de.energiequant.xprc.commands.DRCICommandBuilder;
+import de.energiequant.xprc.commands.DRCIMessage;
 import de.energiequant.xprc.commands.DRLSChannel;
 import de.energiequant.xprc.commands.DRLSCommandBuilder;
 import de.energiequant.xprc.commands.DRLSMessage;
@@ -22,6 +25,14 @@ public class CommandBuilderFactory {
 
         private DataRefCommandBuilderFactory(CommandBuilderFactory rootFactory) {
             this.rootFactory = rootFactory;
+        }
+
+        public <CB extends DRCICommandBuilder<CB, CH, CFB, C>, CH extends DRCIChannel<CH, CFB, C>, CFB extends DRCIChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRCIMessage>> CB claimImmediate() {
+            return rootFactory.drci();
+        }
+
+        public <CB extends DRCICommandBuilder<CB, CH, CFB, C>, CH extends DRCIChannel<CH, CFB, C>, CFB extends DRCIChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRCIMessage>> CB claimImmediate(DataRef<?> dataRef) {
+            return rootFactory.drci(dataRef);
         }
 
         public <CB extends DRLSCommandBuilder<CB, CH, CFB, C>, CH extends DRLSChannel<CH, CFB, C>, CFB extends DRLSChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRLSMessage>> CB list() {
@@ -58,6 +69,16 @@ public class CommandBuilderFactory {
     @SuppressWarnings("unchecked")
     public <CB extends CMRGCommandBuilder<CB, CH, CFB, C>, CH extends CMRGChannel<CH, CFB, C>, CFB extends CMRGChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMRGMessage>> CB cmrg() {
         return (CB) new CMRGCommandBuilder<CB, CH, CFB, C>(client);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends DRCICommandBuilder<CB, CH, CFB, C>, CH extends DRCIChannel<CH, CFB, C>, CFB extends DRCIChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRCIMessage>> CB drci() {
+        return (CB) new DRCICommandBuilder<CB, CH, CFB, C>(client);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends DRCICommandBuilder<CB, CH, CFB, C>, CH extends DRCIChannel<CH, CFB, C>, CFB extends DRCIChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRCIMessage>> CB drci(DataRef<?> dataRef) {
+        return (CB) new DRCICommandBuilder<CB, CH, CFB, C>(client, dataRef);
     }
 
     @SuppressWarnings("unchecked")
