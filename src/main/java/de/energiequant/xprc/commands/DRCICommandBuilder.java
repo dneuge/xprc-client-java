@@ -24,8 +24,6 @@ public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C
 
     private static final char TYPE_SEPARATOR = ',';
     private static final char SECTION_SEPARATOR = ':';
-    private static char ARRAY_SIZE_BEGIN = '[';
-    private static char ARRAY_SIZE_END = ']';
     private static char ESCAPE_CHARACTER = '\\'; // TODO: standard escape character is defined/used protocol-wide, extract to a single definition
 
     private static final String MONITOR_OPTION = "echo";
@@ -211,9 +209,8 @@ public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C
         sb.append(escapeDataRefName(dataRefName));
 
         if (isArray) {
-            sb.append(ARRAY_SIZE_BEGIN);
+            sb.append(SECTION_SEPARATOR);
             sb.append(arrayLength);
-            sb.append(ARRAY_SIZE_END);
         }
 
         setParameter(0, sb.toString());
@@ -226,7 +223,7 @@ public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C
 
         StringBuilder sb = new StringBuilder();
         for (char ch : s.toCharArray()) {
-            boolean needsEscape = (ch == ESCAPE_CHARACTER) || (ch == ARRAY_SIZE_BEGIN);
+            boolean needsEscape = (ch == ESCAPE_CHARACTER) || (ch == SECTION_SEPARATOR);
             if (needsEscape) {
                 sb.append(ESCAPE_CHARACTER);
                 escaped = true;
