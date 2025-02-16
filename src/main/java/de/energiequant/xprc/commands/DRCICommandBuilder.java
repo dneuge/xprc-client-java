@@ -24,7 +24,7 @@ public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C
 
     private static final char TYPE_SEPARATOR = ',';
     private static final char SECTION_SEPARATOR = ':';
-    private static char ESCAPE_CHARACTER = '\\'; // TODO: standard escape character is defined/used protocol-wide, extract to a single definition
+    private static final char ESCAPE_CHARACTER = '\\'; // TODO: standard escape character is defined/used protocol-wide, extract to a single definition
 
     private static final String MONITOR_OPTION = "echo";
     private static final String INTEGER_CONVERSION_OPTION = "intConv";
