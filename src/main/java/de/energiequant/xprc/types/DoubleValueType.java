@@ -9,6 +9,11 @@ class DoubleValueType implements ValueType<Double> {
     }
 
     @Override
+    public boolean isArray() {
+        return false;
+    }
+
+    @Override
     public String serialize(Object value) {
         if (value instanceof Double || value instanceof Float || value instanceof Integer) {
             return value.toString();

@@ -11,6 +11,11 @@ class FloatArrayValueType implements ValueType<float[]> {
     }
 
     @Override
+    public boolean isArray() {
+        return true;
+    }
+
+    @Override
     public String serialize(Object value) {
         throw new UnsupportedOperationException("not implemented yet");
     }

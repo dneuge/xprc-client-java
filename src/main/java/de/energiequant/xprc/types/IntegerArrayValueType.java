@@ -8,6 +8,11 @@ class IntegerArrayValueType implements ValueType<int[]> {
         return ENCODED_TYPE_NAME;
     }
 
+    @Override
+    public boolean isArray() {
+        return true;
+    }
+
     public String serialize(int[] value) {
         StringBuilder sb = new StringBuilder(Integer.toString(value.length));
 

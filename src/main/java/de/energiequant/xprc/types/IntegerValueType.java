@@ -9,6 +9,11 @@ class IntegerValueType implements ValueType<Integer> {
     }
 
     @Override
+    public boolean isArray() {
+        return false;
+    }
+
+    @Override
     public String serialize(Object value) {
         if (value instanceof Integer) {
             return value.toString();

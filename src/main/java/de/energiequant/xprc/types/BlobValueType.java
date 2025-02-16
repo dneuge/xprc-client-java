@@ -11,6 +11,11 @@ class BlobValueType implements ValueType<byte[]> {
     }
 
     @Override
+    public boolean isArray() {
+        return true;
+    }
+
+    @Override
     public String serialize(Object value) {
         /*
         StringBuilder sb = new StringBuilder(Integer.toString(value.length));

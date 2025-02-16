@@ -14,6 +14,8 @@ public interface ValueType<T> {
 
     String getEncodedTypeName();
 
+    boolean isArray();
+
     String serialize(Object value);
 
     String serialize(int value);

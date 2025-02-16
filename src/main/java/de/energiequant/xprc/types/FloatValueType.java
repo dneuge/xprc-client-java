@@ -9,6 +9,11 @@ class FloatValueType implements ValueType<Float> {
     }
 
     @Override
+    public boolean isArray() {
+        return false;
+    }
+
+    @Override
     public String serialize(Object value) {
         if (value instanceof Float || value instanceof Integer) {
             return value.toString();
