@@ -10,6 +10,9 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.energiequant.xprc.Command;
 import de.energiequant.xprc.DataRef;
 import de.energiequant.xprc.XPRCClient;
@@ -17,6 +20,8 @@ import de.energiequant.xprc.types.ValueType;
 
 public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C>, CH extends DRCIChannel<CH, CFB, C>, CFB extends DRCIChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRCIMessage>> extends Command.Builder<SELF, C, CH, CFB, DRCIMessage> {
     // FIXME: draft/WIP
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DRCICommandBuilder.class);
 
     private List<ValueType<?>> types;
     private String dataRefName;
@@ -188,6 +193,11 @@ public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C
         if (isArray) {
             if (arrayLength < 0) {
                 throw new IllegalArgumentException("array length has not been specified");
+            }
+
+            if (arrayLength == 0) {
+                // FIXME: server-side currently does not support length 0, check if it should: if not, specify and block here
+                LOGGER.warn("zero-length arrays may not be supported by XPRC");
             }
         } else if (arrayLength >= 0) {
             throw new IllegalArgumentException("array length must only be specified for arrays");
