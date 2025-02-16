@@ -146,6 +146,14 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
             PARAMETER_DELIMITER // FIXME: interim while escapes and server-side implementation are under review
         };
 
+        /**
+         * Use only if {@link #createChannelFactoryBuilder(XPRCClient, Supplier)} should be used to construct channel
+         * factory builders, e.g. if channels need extra information that cannot be passed otherwise.
+         */
+        protected Builder(XPRCClient client, String name) {
+            this(client, name, null);
+        }
+
         public Builder(XPRCClient client, String name, BiFunction<XPRCClient, Supplier<C>, CFB> channelFactoryBuilder) {
             if (!PATTERN_COMMAND_NAME.matcher(name).matches()) {
                 throw new IllegalArgumentException("Not a valid XPRC command name: \"" + name + "\"");
@@ -154,6 +162,15 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
             this.client = client;
             this.name = name;
             this.channelFactoryBuilder = channelFactoryBuilder;
+        }
+
+        /**
+         * Implement only if no static reference is possible to be made during construction, e.g. if channels need extra
+         * information that cannot be passed otherwise. Has no effect if a static reference was provided to the
+         * {@link Builder} constructor.
+         */
+        protected CFB createChannelFactoryBuilder(XPRCClient client, Supplier<C> commandSupplier) {
+            throw new IncompleteImplementation("Command.Builder implementation is incomplete: either a static ChannelFactoryBuilder Supplier must be provided at time of construction or createChannelFactoryBuilder must be overridden");
         }
 
         protected XPRCClient getClient() {
@@ -234,7 +251,11 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
 
         @SuppressWarnings("unchecked")
         public C build() {
-            return (C) new Command<>(name, options, parameters, channelFactoryBuilder);
+            if (channelFactoryBuilder != null) {
+                return (C) new Command<>(name, options, parameters, channelFactoryBuilder);
+            } else {
+                return (C) new Command<>(name, options, parameters, this::createChannelFactoryBuilder);
+            }
         }
 
         @SuppressWarnings("unchecked")
@@ -249,6 +270,12 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
 
         public CH submit(ChannelId channelId) {
             return prepareChannel().submit(channelId);
+        }
+    }
+
+    private static class IncompleteImplementation extends RuntimeException {
+        IncompleteImplementation(String msg) {
+            super(msg);
         }
     }
 }
