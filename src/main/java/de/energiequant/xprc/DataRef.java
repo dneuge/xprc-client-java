@@ -24,4 +24,11 @@ public class DataRef<T> {
     public static <U> DataRef<U> of(ValueType<U> type, String name) {
         return new DataRef<>(type, name);
     }
+
+    @Override
+    public String toString() {
+        return "DataRef("
+            + type.getEncodedTypeName() + ":"
+            + name + ")";
+    }
 }
