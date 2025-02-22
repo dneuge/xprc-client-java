@@ -107,6 +107,7 @@ public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C
         this(client);
         named(dataRef.getName());
         havingType(dataRef.getType());
+        dataRef.getArrayLength().ifPresent(this::withArrayLength);
     }
 
     @SuppressWarnings("unchecked")
