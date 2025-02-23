@@ -38,17 +38,17 @@ class FloatArrayValueType implements ValueType<float[]> {
 
     @Override
     public String serialize(int value) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return "1," + ValueType.FLOAT.serialize(value);
     }
 
     @Override
     public String serialize(float value) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return "1," + ValueType.FLOAT.serialize(value);
     }
 
     @Override
     public String serialize(double value) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return "1," + ValueType.FLOAT.serialize(value);
     }
 
     @Override
