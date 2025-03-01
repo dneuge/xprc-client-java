@@ -15,15 +15,24 @@ class BlobValueType implements ValueType<byte[]> {
         return true;
     }
 
-    @Override
-    public String serialize(Object value) {
-        /*
+    public String serialize(byte[] value) {
         StringBuilder sb = new StringBuilder(Integer.toString(value.length));
+        sb.append(",");
+
+        for (byte b : value) {
+            sb.append(String.format("%02X", b));
+        }
 
         return sb.toString();
-        */
+    }
 
-        throw new UnsupportedOperationException("not implemented yet");
+    @Override
+    public String serialize(Object value) {
+        if (!(value instanceof byte[])) {
+            throw new IllegalArgumentException("only byte[] serialization is supported for blobs");
+        }
+
+        return serialize((byte[]) value);
     }
 
     @Override
