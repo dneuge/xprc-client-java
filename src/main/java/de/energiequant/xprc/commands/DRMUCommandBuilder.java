@@ -131,6 +131,18 @@ public class DRMUCommandBuilder<SELF extends DRMUCommandBuilder<SELF, CH, CFB, C
         return (SELF) this;
     }
 
+    public SELF setDataRef(DataRef<?> dataRef, Object value) {
+        ValueType<?> type = dataRef.getType();
+        addParameter(
+            type.getEncodedTypeName()
+                + SUB_FIELD_SEPARATOR
+                + encodeDataRefName(dataRef.getName())
+                + SUB_FIELD_SEPARATOR
+                + type.serialize(value)
+        );
+        return (SELF) this;
+    }
+
     public SELF setDataRef(DataRef<?> dataRef, float start, float end) {
         ValueType<?> type = dataRef.getType();
         addParameter(
@@ -309,6 +321,22 @@ public class DRMUCommandBuilder<SELF extends DRMUCommandBuilder<SELF, CH, CFB, C
                 + type.serialize(end)
                 + SUB_FIELD_SEPARATOR
                 + type.serialize(start)
+        );
+        return (SELF) this;
+    }
+
+    public SELF setDataRefAtIndex(DataRef<?> dataRef, int index, Object value) {
+        ValueType<?> type = dataRef.getType();
+        if (type.isArray()) {
+            throw new IllegalArgumentException("Tried to set " + dataRef + " at index " + index + " to an array; you may want to use setDataRefFromIndex instead");
+        }
+
+        addParameter(
+            type.getEncodedTypeName()
+                + SUB_FIELD_SEPARATOR
+                + encodeDataRefName(dataRef.getName(), index)
+                + SUB_FIELD_SEPARATOR
+                + type.serialize(value)
         );
         return (SELF) this;
     }
