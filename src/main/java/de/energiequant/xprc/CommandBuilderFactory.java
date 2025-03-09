@@ -1,5 +1,7 @@
 package de.energiequant.xprc;
 
+import java.util.Arrays;
+
 import de.energiequant.xprc.commands.CMRGChannel;
 import de.energiequant.xprc.commands.CMRGCommandBuilder;
 import de.energiequant.xprc.commands.CMRGMessage;
@@ -12,6 +14,9 @@ import de.energiequant.xprc.commands.DRLSMessage;
 import de.energiequant.xprc.commands.DRMUChannel;
 import de.energiequant.xprc.commands.DRMUCommandBuilder;
 import de.energiequant.xprc.commands.DRMUMessage;
+import de.energiequant.xprc.commands.DRQVChannel;
+import de.energiequant.xprc.commands.DRQVCommandBuilder;
+import de.energiequant.xprc.commands.DRQVMessage;
 
 public class CommandBuilderFactory {
     private final XPRCClient client;
@@ -37,6 +42,14 @@ public class CommandBuilderFactory {
 
         public <CB extends DRLSCommandBuilder<CB, CH, CFB, C>, CH extends DRLSChannel<CH, CFB, C>, CFB extends DRLSChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRLSMessage>> CB list() {
             return rootFactory.drls();
+        }
+
+        public <CB extends DRQVCommandBuilder<CB, CH, CFB, C>, CH extends DRQVChannel<CH, CFB, C>, CFB extends DRQVChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRQVMessage>> CB query() {
+            return rootFactory.drqv();
+        }
+
+        public <CB extends DRQVCommandBuilder<CB, CH, CFB, C>, CH extends DRQVChannel<CH, CFB, C>, CFB extends DRQVChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRQVMessage>> CB query(DataRef<?>... dataRefs) {
+            return rootFactory.drqv(dataRefs);
         }
 
         public <CB extends DRMUCommandBuilder<CB, CH, CFB, C>, CH extends DRMUChannel<CH, CFB, C>, CFB extends DRMUChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRMUMessage>> CB manipulateUncontrolled() {
@@ -84,6 +97,16 @@ public class CommandBuilderFactory {
     @SuppressWarnings("unchecked")
     public <CB extends DRLSCommandBuilder<CB, CH, CFB, C>, CH extends DRLSChannel<CH, CFB, C>, CFB extends DRLSChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRLSMessage>> CB drls() {
         return (CB) new DRLSCommandBuilder<CB, CH, CFB, C>(client);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends DRQVCommandBuilder<CB, CH, CFB, C>, CH extends DRQVChannel<CH, CFB, C>, CFB extends DRQVChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRQVMessage>> CB drqv() {
+        return (CB) new DRQVCommandBuilder<CB, CH, CFB, C>(client);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends DRQVCommandBuilder<CB, CH, CFB, C>, CH extends DRQVChannel<CH, CFB, C>, CFB extends DRQVChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRQVMessage>> CB drqv(DataRef<?>... dataRefs) {
+        return (CB) new DRQVCommandBuilder<CB, CH, CFB, C>(client, Arrays.asList(dataRefs));
     }
 
     @SuppressWarnings("unchecked")
