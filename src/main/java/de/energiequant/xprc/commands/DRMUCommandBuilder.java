@@ -327,7 +327,7 @@ public class DRMUCommandBuilder<SELF extends DRMUCommandBuilder<SELF, CH, CFB, C
 
     public SELF setDataRefAtIndex(DataRef<?> dataRef, int index, Object value) {
         ValueType<?> type = dataRef.getType();
-        if (type.isArray()) {
+        if (value.getClass().isArray()) {
             throw new IllegalArgumentException("Tried to set " + dataRef + " at index " + index + " to an array; you may want to use setDataRefFromIndex instead");
         }
 
