@@ -88,7 +88,7 @@ public class DRQVCommandBuilder<SELF extends DRQVCommandBuilder<SELF, CH, CFB, C
         return (SELF) this;
     }
 
-    public <T> SELF monitoringDataRef(DataRef<T> dataRef, DRQVChannel.ValueCallback<T> callback) {
+    public <T> SELF monitoring(DataRef<T> dataRef, ValueCallback<T> callback) {
         if (!dataRefs.contains(dataRef)) {
             readingDataRef(dataRef);
         }
