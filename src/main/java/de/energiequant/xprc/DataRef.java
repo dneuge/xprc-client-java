@@ -47,6 +47,14 @@ public class DataRef<T> {
         return Optional.of(arrayLength);
     }
 
+    public DataRef<T> withoutArrayLength() {
+        if (arrayLength < 0) {
+            return this;
+        }
+
+        return new DataRef<>(type, name);
+    }
+
     public static <U> DataRef<U> of(ValueType<U> type, String name) {
         return new DataRef<>(type, name);
     }
