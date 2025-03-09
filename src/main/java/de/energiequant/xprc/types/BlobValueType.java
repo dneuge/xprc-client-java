@@ -52,7 +52,40 @@ class BlobValueType implements ValueType<byte[]> {
 
     @Override
     public byte[] deserialize(String s) {
-        throw new UnsupportedOperationException("not implemented yet");
+        String[] split = s.split(",");
+        if (split.length != 2) {
+            throw new IllegalArgumentException("Bad blob format: \"" + s + "\"");
+        }
+
+        int numBytes = Integer.parseUnsignedInt(split[0]);
+        if (numBytes == 0) {
+            throw new IllegalArgumentException("Empty blob not supported: \"" + s + "\"");
+        }
+
+        char[] sequence = split[1].toCharArray();
+        if (sequence.length != numBytes * 2) {
+            throw new IllegalArgumentException("Length mismatch on blob: \"" + s + "\"");
+        }
+
+        byte[] out = new byte[numBytes];
+        for (int i = 0; i < numBytes; i++) {
+            int value = (decodeNibble(sequence[i * 2]) << 4) | decodeNibble(sequence[(i * 2) + 1]);
+            out[i] = (value < 128) ? (byte) value : (byte) (value - 256);
+        }
+
+        return out;
+    }
+
+    private static int decodeNibble(char ch) {
+        if (ch >= '0' && ch <= '9') {
+            return ch - '0';
+        }
+
+        if (ch >= 'A' && ch <= 'F') {
+            return ch - 'A' + 10;
+        }
+
+        throw new IllegalArgumentException("Invalid nibble character: '" + ch + "' (" + Character.getNumericValue(ch) + ")");
     }
 
     @Override

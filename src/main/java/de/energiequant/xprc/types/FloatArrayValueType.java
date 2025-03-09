@@ -6,6 +6,8 @@ class FloatArrayValueType implements ValueType<float[]> {
 
     public static final String ENCODED_TYPE_NAME = "float[]";
 
+    private static final String SEPARATOR = ",";
+
     @Override
     public String getEncodedTypeName() {
         return ENCODED_TYPE_NAME;
@@ -20,7 +22,7 @@ class FloatArrayValueType implements ValueType<float[]> {
         StringBuilder sb = new StringBuilder(Integer.toString(value.length));
 
         for (float v : value) {
-            sb.append(",");
+            sb.append(SEPARATOR);
             sb.append(v);
         }
 
@@ -53,7 +55,26 @@ class FloatArrayValueType implements ValueType<float[]> {
 
     @Override
     public float[] deserialize(String s) {
-        throw new UnsupportedOperationException("not implemented yet");
+        String[] split = s.split(",");
+        if (split.length < 1) {
+            throw new IllegalArgumentException("Bad float[] format: \"" + s + "\"");
+        }
+
+        int length = Integer.parseUnsignedInt(split[0]);
+        if (length == 0) {
+            throw new IllegalArgumentException("Empty float[] not supported: \"" + s + "\"");
+        }
+
+        if (length != split.length - 1) {
+            throw new IllegalArgumentException("Length mismatch on float[]: \"" + s + "\"");
+        }
+
+        float[] out = new float[length];
+        for (int i = 0; i < length; i++) {
+            out[i] = ValueType.FLOAT.deserialize(split[i + 1]);
+        }
+
+        return out;
     }
 
     @Override
