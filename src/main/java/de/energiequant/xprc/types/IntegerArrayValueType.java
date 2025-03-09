@@ -70,7 +70,7 @@ class IntegerArrayValueType implements ValueType<int[]> {
 
         int[] out = new int[length];
         for (int i = 0; i < length; i++) {
-            out[i] = Integer.parseInt(split[i + 1]);
+            out[i] = ValueType.INTEGER.deserialize(split[i + 1]);
         }
 
         return out;
