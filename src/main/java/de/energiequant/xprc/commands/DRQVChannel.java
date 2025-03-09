@@ -1,9 +1,11 @@
 package de.energiequant.xprc.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import de.energiequant.xprc.Channel;
@@ -27,6 +29,64 @@ public class DRQVChannel<SELF extends DRQVChannel<SELF, CFB, C>, CFB extends DRQ
     @FunctionalInterface
     public interface ValueCallback<T> {
         void onValue(DRQVChannel channel, DRQVMessage message, DataRef<T> dataRef, T value);
+
+        class ChangingValueCallback<T> implements ValueCallback<T> {
+            private T previousValue;
+            private final ValueCallback<T> originalCallback;
+
+            ChangingValueCallback(ValueCallback<T> originalCallback) {
+                this.originalCallback = originalCallback;
+            }
+
+            @Override
+            public void onValue(DRQVChannel channel, DRQVMessage message, DataRef<T> dataRef, T value) {
+                if (Objects.equals(previousValue, value)) {
+                    return;
+                }
+
+                previousValue = value;
+                originalCallback.onValue(channel, message, dataRef, value);
+            }
+        }
+
+        class ChangingArrayCallback<T> implements ValueCallback<T> {
+            private T previousValue;
+            private final ValueCallback<T> originalCallback;
+
+            ChangingArrayCallback(ValueCallback<T> originalCallback) {
+                this.originalCallback = originalCallback;
+            }
+
+            @Override
+            public void onValue(DRQVChannel channel, DRQVMessage message, DataRef<T> dataRef, T value) {
+                if (value instanceof int[]) {
+                    int[] arr = (int[]) value;
+                    if (Arrays.equals((int[]) previousValue, arr)) {
+                        return;
+                    }
+
+                    previousValue = (T) Arrays.copyOf(arr, arr.length);
+                } else if (value instanceof float[]) {
+                    float[] arr = (float[]) value;
+                    if (Arrays.equals((float[]) previousValue, arr)) {
+                        return;
+                    }
+
+                    previousValue = (T) Arrays.copyOf(arr, arr.length);
+                } else if (value instanceof byte[]) {
+                    byte[] arr = (byte[]) value;
+                    if (Arrays.equals((byte[]) previousValue, arr)) {
+                        return;
+                    }
+
+                    previousValue = (T) Arrays.copyOf(arr, arr.length);
+                } else {
+                    throw new IllegalArgumentException("not an array or unsupported type: " + dataRef + " / value class: " + value.getClass().getCanonicalName());
+                }
+
+                originalCallback.onValue(channel, message, dataRef, value);
+            }
+        }
     }
 
     public DRQVChannel(ChannelId id, Session session, C command, Callbacks<SELF, C, DRQVMessage> externalCallbacks, List<DataRef<?>> dataRefs, @SuppressWarnings("rawtypes") Map<DataRef, ValueCallback> valueCallbacks) {

@@ -11,15 +11,16 @@ import de.energiequant.xprc.Command;
 import de.energiequant.xprc.DataRef;
 import de.energiequant.xprc.Interval;
 import de.energiequant.xprc.XPRCClient;
+import de.energiequant.xprc.commands.DRQVChannel.ValueCallback;
 import de.energiequant.xprc.types.ValueType;
 
 public class DRQVCommandBuilder<SELF extends DRQVCommandBuilder<SELF, CH, CFB, C>, CH extends DRQVChannel<CH, CFB, C>, CFB extends DRQVChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRQVMessage>> extends Command.Builder<SELF, C, CH, CFB, DRQVMessage> {
     // FIXME: draft/WIP
 
     private final List<DataRef<?>> dataRefs = new ArrayList<>();
-    
+
     @SuppressWarnings("rawtypes")
-    private final Map<DataRef, DRQVChannel.ValueCallback> valueCallbacks = new HashMap<>();
+    private final Map<DataRef, ValueCallback> valueCallbacks = new HashMap<>();
 
     // TODO: extract Phase enum (used by other commands as well)
     public enum Phase {
@@ -97,6 +98,28 @@ public class DRQVCommandBuilder<SELF extends DRQVCommandBuilder<SELF, CH, CFB, C
         }
 
         valueCallbacks.put(dataRef, callback);
+
+        return (SELF) this;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T> SELF monitoringChanges(DataRef<T> dataRef, ValueCallback<T> callback) {
+        if (!dataRefs.contains(dataRef)) {
+            readingDataRef(dataRef);
+        }
+
+        if (valueCallbacks.containsKey(dataRef)) {
+            throw new IllegalArgumentException("monitor has already been registered for " + dataRef);
+        }
+
+        ValueCallback filteringCallback;
+        if (dataRef.getType().isArray()) {
+            filteringCallback = new ValueCallback.ChangingArrayCallback(callback);
+        } else {
+            filteringCallback = new ValueCallback.ChangingValueCallback(callback);
+        }
+
+        valueCallbacks.put(dataRef, filteringCallback);
 
         return (SELF) this;
     }
