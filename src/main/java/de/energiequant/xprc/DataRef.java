@@ -1,5 +1,6 @@
 package de.energiequant.xprc;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import de.energiequant.xprc.types.ValueType;
@@ -64,9 +65,42 @@ public class DataRef<T> {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof DataRef)) {
+            return false;
+        }
+
+        DataRef<?> other = (DataRef<?>) obj;
+
+        return this.type == other.type
+            && this.arrayLength == other.arrayLength
+            && this.name.equals(other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, arrayLength, name);
+    }
+
+    @Override
     public String toString() {
-        return "DataRef("
-            + type.getEncodedTypeName() + ":"
-            + name + ")";
+        StringBuilder sb = new StringBuilder("DataRef(");
+
+        sb.append(type.getEncodedTypeName());
+        sb.append(":");
+        sb.append(name);
+
+        if (arrayLength >= 0) {
+            sb.append(", arrayLength=");
+            sb.append(arrayLength);
+        }
+
+        sb.append(")");
+
+        return sb.toString();
     }
 }
