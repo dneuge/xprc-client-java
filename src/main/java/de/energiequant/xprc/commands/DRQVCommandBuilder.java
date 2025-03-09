@@ -2,7 +2,9 @@ package de.energiequant.xprc.commands;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import de.energiequant.xprc.Command;
@@ -15,6 +17,9 @@ public class DRQVCommandBuilder<SELF extends DRQVCommandBuilder<SELF, CH, CFB, C
     // FIXME: draft/WIP
 
     private final List<DataRef<?>> dataRefs = new ArrayList<>();
+    
+    @SuppressWarnings("rawtypes")
+    private final Map<DataRef, DRQVChannel.ValueCallback> valueCallbacks = new HashMap<>();
 
     // TODO: extract Phase enum (used by other commands as well)
     public enum Phase {
@@ -40,7 +45,7 @@ public class DRQVCommandBuilder<SELF extends DRQVCommandBuilder<SELF, CH, CFB, C
     @SuppressWarnings("unchecked")
     @Override
     protected CFB createChannelFactoryBuilder(XPRCClient client, Supplier<C> commandSupplier) {
-        return (CFB) new DRQVChannel.FactoryBuilder<>(client, commandSupplier, dataRefs);
+        return (CFB) new DRQVChannel.FactoryBuilder<>(client, commandSupplier, dataRefs, valueCallbacks);
     }
 
     public SELF repeatEvery(Interval interval) {
@@ -78,6 +83,20 @@ public class DRQVCommandBuilder<SELF extends DRQVCommandBuilder<SELF, CH, CFB, C
         );
 
         dataRefs.add(dataRef.withoutArrayLength());
+
+        return (SELF) this;
+    }
+
+    public <T> SELF monitoringDataRef(DataRef<T> dataRef, DRQVChannel.ValueCallback<T> callback) {
+        if (!dataRefs.contains(dataRef)) {
+            readingDataRef(dataRef);
+        }
+
+        if (valueCallbacks.containsKey(dataRef)) {
+            throw new IllegalArgumentException("monitor has already been registered for " + dataRef);
+        }
+
+        valueCallbacks.put(dataRef, callback);
 
         return (SELF) this;
     }
