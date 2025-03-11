@@ -33,6 +33,12 @@ class FloatArrayValueType implements ValueType<float[]> {
     public String serialize(Object value) {
         if (value instanceof float[]) {
             return serialize((float[]) value);
+        } else if (value instanceof Float) {
+            return serialize((float) value);
+        } else if (value instanceof Double) {
+            return serialize((double) value);
+        } else if (value instanceof Integer) {
+            return serialize((int) value);
         }
 
         throw new UnsupportedOperationException("not implemented yet");
