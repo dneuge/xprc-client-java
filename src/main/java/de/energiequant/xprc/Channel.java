@@ -3,6 +3,7 @@ package de.energiequant.xprc;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -23,6 +24,8 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
     private Instant confirmed;
     private Instant closed;
     private volatile State state = State.PREPARED; // FIXME: should probably be an AtomicReference instead
+
+    private final AtomicBoolean requestedTermination = new AtomicBoolean(false);
 
     private final Callbacks<SELF, C, M> externalCallbacks;
 
@@ -531,6 +534,19 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
         // FIXME: use object monitor instead (synchronize over state to remove "volatile" flag as well)
         WaitUtils.sleepFor(timeout, WAIT_CHECK_INTERVAL, () -> state.impliesClosedChannel(), channelLogPrefix);
         return (SELF) this;
+    }
+
+    /**
+     * Asynchronously requests the channel to be terminated unless it already is.
+     * Combine with {@link #waitUntilTerminated(Duration)} in case actual termination should be waited for.
+     */
+    public void terminateAsync() {
+        if (!state.impliesClosedChannel()) {
+            boolean alreadyRequested = requestedTermination.getAndSet(true);
+            if (!alreadyRequested) {
+                session.sendRawMessage(id + " TERM");
+            }
+        }
     }
 
     @Override
