@@ -39,17 +39,17 @@ class IntegerArrayValueType implements ValueType<int[]> {
 
     @Override
     public String serialize(int value) {
-        throw new IllegalArgumentException("Unsupported type: int");
+        return "1," + ValueType.INTEGER.serialize(value);
     }
 
     @Override
     public String serialize(float value) {
-        throw new IllegalArgumentException("Unsupported type: float");
+        return "1," + ValueType.INTEGER.serialize(value);
     }
 
     @Override
     public String serialize(double value) {
-        throw new IllegalArgumentException("Unsupported type: double");
+        return "1," + ValueType.INTEGER.serialize(value);
     }
 
     @Override
