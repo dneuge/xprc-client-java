@@ -3,6 +3,9 @@ package de.energiequant.xprc;
 import java.util.Arrays;
 import java.util.Collection;
 
+import de.energiequant.xprc.commands.CMHDChannel;
+import de.energiequant.xprc.commands.CMHDCommandBuilder;
+import de.energiequant.xprc.commands.CMHDMessage;
 import de.energiequant.xprc.commands.CMRGChannel;
 import de.energiequant.xprc.commands.CMRGCommandBuilder;
 import de.energiequant.xprc.commands.CMRGMessage;
@@ -70,6 +73,18 @@ public class CommandBuilderFactory {
             this.rootFactory = rootFactory;
         }
 
+        public <CB extends CMHDCommandBuilder<CB, CH, CFB, C>, CH extends CMHDChannel<CH, CFB, C>, CFB extends CMHDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMHDMessage>> CB hold() {
+            return rootFactory.cmhd();
+        }
+
+        public <CB extends CMHDCommandBuilder<CB, CH, CFB, C>, CH extends CMHDChannel<CH, CFB, C>, CFB extends CMHDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMHDMessage>> CB hold(String... commandNames) {
+            return rootFactory.cmhd(commandNames);
+        }
+
+        public <CB extends CMHDCommandBuilder<CB, CH, CFB, C>, CH extends CMHDChannel<CH, CFB, C>, CFB extends CMHDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMHDMessage>> CB hold(Collection<String> commandNames) {
+            return rootFactory.cmhd(commandNames);
+        }
+
         public <CB extends CMRGCommandBuilder<CB, CH, CFB, C>, CH extends CMRGChannel<CH, CFB, C>, CFB extends CMRGChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMRGMessage>> CB register() {
             return rootFactory.cmrg();
         }
@@ -93,6 +108,20 @@ public class CommandBuilderFactory {
 
     public CommandCommandBuilderFactory commands() {
         return new CommandCommandBuilderFactory(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends CMHDCommandBuilder<CB, CH, CFB, C>, CH extends CMHDChannel<CH, CFB, C>, CFB extends CMHDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMHDMessage>> CB cmhd() {
+        return (CB) new CMHDCommandBuilder<CB, CH, CFB, C>(client);
+    }
+
+    public <CB extends CMHDCommandBuilder<CB, CH, CFB, C>, CH extends CMHDChannel<CH, CFB, C>, CFB extends CMHDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMHDMessage>> CB cmhd(String... commandNames) {
+        return cmhd(Arrays.asList(commandNames));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends CMHDCommandBuilder<CB, CH, CFB, C>, CH extends CMHDChannel<CH, CFB, C>, CFB extends CMHDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMHDMessage>> CB cmhd(Collection<String> commandNames) {
+        return (CB) new CMHDCommandBuilder<CB, CH, CFB, C>(client, commandNames);
     }
 
     @SuppressWarnings("unchecked")
