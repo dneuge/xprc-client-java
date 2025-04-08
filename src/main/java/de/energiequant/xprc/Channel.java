@@ -497,10 +497,6 @@ public abstract class Channel<SELF extends Channel<SELF, C, M>, C extends Comman
         }
     }
 
-    public void close() {
-        // FIXME: implement - send termination request via Session if not already closed
-    }
-
     /**
      * Blocks until the channel has been confirmed or the timeout is reached.
      * <p>
