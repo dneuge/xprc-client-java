@@ -1,10 +1,14 @@
 package de.energiequant.xprc;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import de.energiequant.xprc.commands.CMRGChannel;
 import de.energiequant.xprc.commands.CMRGCommandBuilder;
 import de.energiequant.xprc.commands.CMRGMessage;
+import de.energiequant.xprc.commands.CMTRChannel;
+import de.energiequant.xprc.commands.CMTRCommandBuilder;
+import de.energiequant.xprc.commands.CMTRMessage;
 import de.energiequant.xprc.commands.DRCIChannel;
 import de.energiequant.xprc.commands.DRCICommandBuilder;
 import de.energiequant.xprc.commands.DRCIMessage;
@@ -69,6 +73,18 @@ public class CommandBuilderFactory {
         public <CB extends CMRGCommandBuilder<CB, CH, CFB, C>, CH extends CMRGChannel<CH, CFB, C>, CFB extends CMRGChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMRGMessage>> CB register() {
             return rootFactory.cmrg();
         }
+
+        public <CB extends CMTRCommandBuilder<CB, CH, CFB, C>, CH extends CMTRChannel<CH, CFB, C>, CFB extends CMTRChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMTRMessage>> CB trigger() {
+            return rootFactory.cmtr();
+        }
+
+        public <CB extends CMTRCommandBuilder<CB, CH, CFB, C>, CH extends CMTRChannel<CH, CFB, C>, CFB extends CMTRChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMTRMessage>> CB trigger(String... commandNames) {
+            return rootFactory.cmtr(commandNames);
+        }
+
+        public <CB extends CMTRCommandBuilder<CB, CH, CFB, C>, CH extends CMTRChannel<CH, CFB, C>, CFB extends CMTRChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMTRMessage>> CB trigger(Collection<String> commandNames) {
+            return rootFactory.cmtr(commandNames);
+        }
     }
 
     public DataRefCommandBuilderFactory dataRefs() {
@@ -82,6 +98,20 @@ public class CommandBuilderFactory {
     @SuppressWarnings("unchecked")
     public <CB extends CMRGCommandBuilder<CB, CH, CFB, C>, CH extends CMRGChannel<CH, CFB, C>, CFB extends CMRGChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMRGMessage>> CB cmrg() {
         return (CB) new CMRGCommandBuilder<CB, CH, CFB, C>(client);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends CMTRCommandBuilder<CB, CH, CFB, C>, CH extends CMTRChannel<CH, CFB, C>, CFB extends CMTRChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMTRMessage>> CB cmtr() {
+        return (CB) new CMTRCommandBuilder<CB, CH, CFB, C>(client);
+    }
+
+    public <CB extends CMTRCommandBuilder<CB, CH, CFB, C>, CH extends CMTRChannel<CH, CFB, C>, CFB extends CMTRChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMTRMessage>> CB cmtr(String... commandNames) {
+        return cmtr(Arrays.asList(commandNames));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends CMTRCommandBuilder<CB, CH, CFB, C>, CH extends CMTRChannel<CH, CFB, C>, CFB extends CMTRChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMTRMessage>> CB cmtr(Collection<String> commandNames) {
+        return (CB) new CMTRCommandBuilder<CB, CH, CFB, C>(client, commandNames);
     }
 
     @SuppressWarnings("unchecked")
