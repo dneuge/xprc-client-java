@@ -1,6 +1,7 @@
 package de.energiequant.xprc;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -206,6 +207,13 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
         }
 
         @SuppressWarnings("unchecked")
+        public B addParameters(Collection<String> parameters) {
+            parameters.forEach(this::addParameter);
+
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
         public B setParameter(int index, String parameter) {
             if (parameters.size() == index) {
                 return addParameter(parameter);
@@ -223,6 +231,13 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
         @SuppressWarnings("unchecked")
         public B removeParameter(int index) {
             parameters.remove(index);
+
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B clearParameters() {
+            parameters.clear();
 
             return (B) this;
         }
