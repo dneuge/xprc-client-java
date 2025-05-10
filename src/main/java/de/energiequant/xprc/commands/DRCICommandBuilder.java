@@ -59,7 +59,7 @@ public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C
 
     public enum IntegerConversionMode {
         /**
-         * apply standard mathematical rounding when converting from floating point to integers (floor if &lt; .5, ceil if >= .5)
+         * apply standard mathematical rounding when converting from floating point to integers (floor if &lt; .5, ceil if &gt;= .5)
          */
         ROUND("round"),
         /**
