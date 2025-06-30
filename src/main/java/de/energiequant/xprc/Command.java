@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extends Channel<CH, C, M>, C extends Command<CFB, CH, C, M>, M extends ChannelMessage> {
     private final String name;
@@ -285,6 +286,18 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
 
         public CH submit(ChannelId channelId) {
             return prepareChannel().submit(channelId);
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "(" + name
+                + ", options={" + options.entrySet()
+                                         .stream()
+                                         .map(e -> "\"" + e.getKey() + "\": \"" + e.getValue() + "\"")
+                                         .collect(Collectors.joining(", "))
+                + "}, params=[" + parameters.stream()
+                                            .collect(Collectors.joining("\", \"", "\"", "\""))
+                + "])";
         }
     }
 
