@@ -48,7 +48,11 @@ public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C
         /**
          * Only notify about updates submitted through X-Plane. Notifications are disabled for submissions from XPRC.
          */
-        XPLANE_ONLY("none");
+        XPLANE_ONLY("xplane"),
+        /**
+         * Disable all notifications.
+         */
+        NONE("none");
 
         private final String optionValue;
 
