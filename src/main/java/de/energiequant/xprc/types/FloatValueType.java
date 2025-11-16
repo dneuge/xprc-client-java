@@ -43,6 +43,10 @@ class FloatValueType implements ValueType<Float> {
 
     @Override
     public Float deserialize(String s) {
+        if ("nan".equals(s)) {
+            return Float.NaN;
+        }
+
         return Float.parseFloat(s);
     }
 

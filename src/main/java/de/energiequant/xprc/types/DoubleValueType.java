@@ -39,6 +39,10 @@ class DoubleValueType implements ValueType<Double> {
 
     @Override
     public Double deserialize(String s) {
+        if ("nan".equals(s)) {
+            return Double.NaN;
+        }
+
         return Double.parseDouble(s);
     }
 
