@@ -379,7 +379,6 @@ public class Session implements AutoCloseable, Closeable {
                             notifyMonitorsAboutChannel(SessionMonitor::onChannelClosed, channel);
                         }
 
-                        // FIXME: implement actual processing
                         // TODO: monitor processing backlog/delay (configurable limits for warning and reconnect)
                     }
                 }
