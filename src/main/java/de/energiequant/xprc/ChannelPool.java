@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
  * </p>
  */
 public class ChannelPool {
+    // FIXME: possible memleak - we only record state but have no garbage-collection to remove long-expired records (released channels with expired block)
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelPool.class);
 
     private final String logPrefix;
@@ -63,14 +65,29 @@ public class ChannelPool {
         this.blockDuration = blockDuration;
     }
 
-    public boolean isChannelBlocked(ChannelId channelId) {
+    /**
+     * Checks if the channel was previously allocated and still within block period.
+     * Will return {@code false} if the channel is free or if it is not known to have been allocated previously.
+     *
+     * @param channelId ID of channel to check
+     * @return {@code true} if channel was released but is still blocked, {@code false} if free or not known as previously allocated
+     */
+    public boolean isRecentlyReleased(ChannelId channelId) {
         synchronized (this) {
-            return !State.isFree(stateByChannel.get(channelId.getNumeric()));
+            State state = stateByChannel.get(channelId.getNumeric());
+            return (state != null) && !state.isAllocated && !state.blockExpired();
         }
     }
 
-    public boolean isChannelBlocked(String channelId) {
-        return isChannelBlocked(ChannelId.fromAlphanumeric(channelId));
+    /**
+     * Checks if the channel was previously allocated and still within block period.
+     * Will return {@code false} if the channel is free or if it is not known to have been allocated previously.
+     *
+     * @param channelId ID of channel to check
+     * @return {@code true} if channel was released but is still blocked, {@code false} if free or not known as previously allocated
+     */
+    public boolean isRecentlyReleased(String channelId) {
+        return isRecentlyReleased(ChannelId.fromAlphanumeric(channelId));
     }
 
     public Optional<ChannelId> allocateChannel() {

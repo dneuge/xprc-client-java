@@ -60,6 +60,10 @@ public class XPRCClientFactory {
      * {@link #MINIMUM_RECOMMENDED_CHANNEL_BLOCK_DURATION} and {@link #MAXIMUM_RECOMMENDED_CHANNEL_BLOCK_DURATION}
      * can be used to set protocol-recommended durations.
      * </p>
+     * <p>
+     * Note that block duration is also used to detect and mitigate concurrent channel termination for recently released
+     * channels and thus should not be set too low.
+     * </p>
      *
      * @param channelBlockDuration minimum time before released channel IDs are allowed to be reused
      * @return same instance for method-chaining

@@ -343,6 +343,14 @@ public class Session implements AutoCloseable, Closeable {
 
                         if (msg instanceof ServerMessage) {
                             if (msg.getType() == ReceivedMessage.Type.ERROR) {
+                                ChannelId ignoredTerminationChannelId = ((ServerMessage) msg).tryParseChannelTerminationIgnored().orElse(null);
+                                if (ignoredTerminationChannelId != null && channelPool.isRecentlyReleased(ignoredTerminationChannelId)) {
+                                    // error indicates concurrent termination of a channel we now also saw as having been closed by server
+                                    // see "Special Considerations" section of protocol specification (race condition: double termination)
+                                    LOGGER.debug("{}Server reports ignored (double) termination of recently closed channel {}, ignoring", logPrefix, ignoredTerminationChannelId);
+                                    continue;
+                                }
+
                                 LOGGER.warn("{}Received global error message: {}", logPrefix, msg);
                                 throw new XPRCException(client, Consequence.RECONNECT, "Received global error message: " + msg);
                             } else {
