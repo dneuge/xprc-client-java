@@ -26,6 +26,9 @@ issue reports.
 
 Functionally, the client is in a stable, working state.
 
+The [protocol](https://codeberg.org/dneuge/xprc-protocol) is not stable yet, meaning today's versions of this
+client implementation may be incompatible with future protocol/server revisions.
+
 The API still requires cleanup before a first release can be made. In particular, command classes currently use a large
 number of type parameters to achieve a fluent API. There sure is a better way to do that but that cleanup has been
 post-poned for time-constraints; getting the project (and associated projects) going had higher priority up until now.
