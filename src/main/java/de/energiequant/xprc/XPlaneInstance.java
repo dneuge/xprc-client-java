@@ -3,7 +3,6 @@ package de.energiequant.xprc;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -13,7 +12,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +28,7 @@ public class XPlaneInstance {
     private Instant logTimestamp;
     private boolean foundXPRC;
     private File xprcPasswordFile;
-    private File xprcSettingsFile;
+    private File xprcPortFile;
 
     private Instant updated;
 
@@ -80,18 +78,18 @@ public class XPlaneInstance {
 
             File outputDirectory = new File(rootDirectory, "Output");
             File preferencesDirectory = new File(outputDirectory, "preferences");
+            File xprcDirectory = new File(preferencesDirectory, "xprc");
+            foundXPRC = xprcDirectory.exists();
 
-            xprcPasswordFile = new File(preferencesDirectory, "xprc_password.cfg");
+            xprcPasswordFile = new File(xprcDirectory, "password.cfg");
             if (!xprcPasswordFile.exists()) {
                 xprcPasswordFile = null;
             }
 
-            xprcSettingsFile = new File(preferencesDirectory, "xprc_settings.cfg");
-            if (!xprcSettingsFile.exists()) {
-                xprcSettingsFile = null;
+            xprcPortFile = new File(xprcDirectory, "port.cfg");
+            if (!xprcPortFile.exists()) {
+                xprcPortFile = null;
             }
-
-            foundXPRC = (xprcPasswordFile != null) || (xprcSettingsFile != null);
         }
 
         return this;
@@ -117,9 +115,9 @@ public class XPlaneInstance {
         }
     }
 
-    public Optional<File> getXPRCSettingsFile() {
+    public Optional<File> getXPRCPortFile() {
         synchronized (this) {
-            return Optional.ofNullable(xprcSettingsFile);
+            return Optional.ofNullable(xprcPortFile);
         }
     }
 
@@ -142,11 +140,15 @@ public class XPlaneInstance {
             return Optional.empty();
         }
 
-        char[] password = null;
+        return readXPRCStandardFile(xprcPasswordFile);
+    }
+
+    private Optional<char[]> readXPRCStandardFile(File file) {
+        char[] out = null;
         try {
             byte[] content = Files.readAllBytes(file.toPath());
             if (content.length == 0) {
-                LOGGER.warn("XPRC password file is empty: {}", file);
+                LOGGER.warn("XPRC standard file is empty: {}", file);
                 return Optional.empty();
             }
 
@@ -169,7 +171,7 @@ public class XPlaneInstance {
                     : new byte[]{content[content.length - 2], content[content.length - 1]};
 
                 if (isEndOfLineSequence(discardedCharacters)) {
-                    LOGGER.debug("Ignoring trailing EOL in XPRC password file {}", file);
+                    LOGGER.debug("Ignoring trailing EOL in XPRC standard file {}", file);
                     numDiscardedCharacters = 0;
                 }
 
@@ -177,62 +179,46 @@ public class XPlaneInstance {
             }
 
             if (numDiscardedCharacters != 0) {
-                LOGGER.warn("Unsupported characters found in XPRC password file, unable to use: {}", file);
+                LOGGER.warn("Unsupported characters found in XPRC standard file, unable to use: {}", file);
             } else {
-                password = new char[goodCharacters];
-                for (int i = 0; i < password.length; i++) {
-                    password[i] = (char) content[i];
+                out = new char[goodCharacters];
+                for (int i = 0; i < out.length; i++) {
+                    out[i] = (char) content[i];
                 }
             }
 
             Arrays.fill(content, (byte) 0);
         } catch (IOException ex) {
-            LOGGER.warn("Failed to read XPRC password file {}", file, ex);
+            LOGGER.warn("Failed to read XPRC standard file {}", file, ex);
         }
 
-        return Optional.ofNullable(password);
-    }
-
-    private Optional<Properties> readXPRCSettings() {
-        File file = getXPRCSettingsFile().orElse(null);
-        if (file == null) {
-            LOGGER.debug("XPRC settings file not found for X-Plane installation at {}", rootDirectory);
-            return Optional.empty();
-        }
-
-        Properties out = new Properties();
-        try (FileReader fr = new FileReader(file)) {
-            out.load(fr);
-        } catch (IOException | IllegalArgumentException ex) {
-            LOGGER.warn("Failed to read XPRC settings file {}", file, ex);
-            return Optional.empty();
-        }
-
-        return Optional.of(out);
+        return Optional.ofNullable(out);
     }
 
     public Optional<Integer> readXPRCPort() {
-        // settings file is specific to plugin implementation
-        // we try to read what we know is used by reference implementation but this is subject to change
-        // TODO: amend specification to write actual port (also supporting auto-assignment) to separate file?
+        File file = getXPRCPortFile().orElse(null);
+        if (file == null) {
+            LOGGER.debug("XPRC port file not found for X-Plane installation at {}", rootDirectory);
+            return Optional.empty();
+        }
 
-        Properties settings = readXPRCSettings().orElse(new Properties());
-        String portString = settings.getProperty("network_port");
+        String portString = readXPRCStandardFile(xprcPortFile).map(String::new)
+                                                              .orElse(null);
         if (portString == null) {
-            LOGGER.debug("XPRC settings file {} does not define network port");
+            LOGGER.debug("XPRC port file {} could not be read", xprcPortFile);
             return Optional.empty();
         }
 
         int port;
         try {
-            port = Integer.parseInt(settings.getProperty("network_port"));
+            port = Integer.parseInt(portString);
         } catch (NumberFormatException ex) {
-            LOGGER.debug("failed to parse network port from XPRC settings file for {}: \"{}\"", rootDirectory, portString, ex);
+            LOGGER.debug("failed to parse network port from XPRC standard file {}: \"{}\"", xprcPortFile, portString, ex);
             return Optional.empty();
         }
 
         if ((port < 1) || (port > 65535)) {
-            LOGGER.warn("Network port read from XPRC settings file for {} is out of range: {}", rootDirectory, port);
+            LOGGER.warn("Network port read from XPRC standard file {} is out of range: {}", xprcPortFile, port);
             return Optional.empty();
         }
 
@@ -326,8 +312,8 @@ public class XPlaneInstance {
         sb.append(foundXPRC);
         sb.append(", xprcPasswordFile=");
         sb.append(xprcPasswordFile);
-        sb.append(", xprcSettingsFile=");
-        sb.append(xprcSettingsFile);
+        sb.append(", xprcPortFile=");
+        sb.append(xprcPortFile);
         sb.append(", logTimestamp=");
         sb.append(DateTimeFormatter.ISO_INSTANT.format(logTimestamp));
         sb.append(", updated=");
