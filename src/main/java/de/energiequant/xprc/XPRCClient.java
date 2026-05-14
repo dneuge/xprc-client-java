@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.energiequant.xprc.utils.TimeUtils;
 import de.energiequant.xprc.utils.WaitUtils;
 
 public class XPRCClient implements Closeable, AutoCloseable {
@@ -302,9 +303,14 @@ public class XPRCClient implements Closeable, AutoCloseable {
             String remoteReferenceTimestampString = status.substring(3);
             Instant remoteReferenceTimestamp;
             try {
-                remoteReferenceTimestamp = Instant.parse(remoteReferenceTimestampString);
-            } catch (Exception ex) {
-                throw new XPRCException(this, XPRCException.Consequence.UNRECOVERABLE, "Incompatible timestamp format received during handshake: \"" + remoteReferenceTimestampString + "\"");
+                remoteReferenceTimestamp = TimeUtils.parseOffsetTimestamp(remoteReferenceTimestampString);
+            } catch (IllegalArgumentException ex) {
+                throw new XPRCException(
+                    this,
+                    XPRCException.Consequence.UNRECOVERABLE,
+                    "Incompatible timestamp format received during handshake: \"" + remoteReferenceTimestampString + "\"",
+                    ex
+                );
             }
 
             return new Session(
