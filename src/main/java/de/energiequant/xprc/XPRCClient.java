@@ -77,7 +77,6 @@ public class XPRCClient implements Closeable, AutoCloseable {
 
         while (!shutdown.get()) {
             try {
-                LOGGER.debug("{}connecting", logPrefix);
                 Session session = connect();
                 if (session == null) {
                     LOGGER.debug("{}connection failed", logPrefix);
@@ -183,14 +182,15 @@ public class XPRCClient implements Closeable, AutoCloseable {
         br = null;
         bw = null;
 
+        String host = connectionParameters.getHost();
+        int port = connectionParameters.getPort();
+
         List<char[]> handshakeInformation = new ArrayList<>();
         try {
             try {
+                LOGGER.info("{}connecting to {}:{}", logPrefix, host, port);
                 socket.connect(
-                    new InetSocketAddress(
-                        connectionParameters.getHost(),
-                        connectionParameters.getPort()
-                    ),
+                    new InetSocketAddress(host, port),
                     (int) connectionParameters.getConnectTimeout().toMillis()
                 );
             } catch (SocketTimeoutException ex) {
@@ -318,7 +318,7 @@ public class XPRCClient implements Closeable, AutoCloseable {
                 sessionMonitors
             );
         } catch (Exception ex) {
-            LOGGER.warn("{}connection failed", logPrefix, ex);
+            LOGGER.warn("{}connection to {}:{} failed", logPrefix, host, port, ex);
             if (ex instanceof XPRCException) {
                 XPRCException xprcException = (XPRCException) ex;
                 if (xprcException.getConsequence() != XPRCException.Consequence.RECONNECT) {
