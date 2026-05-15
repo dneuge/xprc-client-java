@@ -8,8 +8,6 @@ import de.energiequant.xprc.ChannelMessage;
 import de.energiequant.xprc.types.ValueType;
 
 public class DRCIMessage extends ChannelMessage {
-    // FIXME: draft/WIP
-
     private final ValueType<?>[] types;
     private final String[] encodedValues;
 

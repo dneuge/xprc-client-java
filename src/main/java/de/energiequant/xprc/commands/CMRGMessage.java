@@ -5,8 +5,6 @@ import java.util.Optional;
 import de.energiequant.xprc.ChannelMessage;
 
 public class CMRGMessage extends ChannelMessage {
-    // FIXME: draft/WIP
-
     private final Event event;
 
     public enum Event {

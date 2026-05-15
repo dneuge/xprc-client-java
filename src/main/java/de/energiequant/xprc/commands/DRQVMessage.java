@@ -11,8 +11,6 @@ import de.energiequant.xprc.ChannelMessage;
 import de.energiequant.xprc.DataRef;
 
 public class DRQVMessage extends ChannelMessage {
-    // FIXME: draft/WIP
-
     private final DataRef<?>[] dataRefs;
     private final String[] encodedValues;
 

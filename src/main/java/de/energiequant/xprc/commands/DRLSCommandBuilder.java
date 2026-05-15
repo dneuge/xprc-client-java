@@ -11,8 +11,6 @@ import de.energiequant.xprc.DataRef;
 import de.energiequant.xprc.XPRCClient;
 
 public class DRLSCommandBuilder<SELF extends DRLSCommandBuilder<SELF, CH, CFB, C>, CH extends DRLSChannel<CH, CFB, C>, CFB extends DRLSChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRLSMessage>> extends Command.Builder<SELF, C, CH, CFB, DRLSMessage> {
-    // FIXME: draft/WIP
-
     private static final String READWRITE_OPTION = "rwCheck";
 
     public enum ReadWriteCheck {

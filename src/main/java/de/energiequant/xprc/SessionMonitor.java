@@ -1,8 +1,6 @@
 package de.energiequant.xprc;
 
 public interface SessionMonitor {
-    // FIXME: connect
-
     enum Direction {
         CLIENT_TO_SERVER, SERVER_TO_CLIENT;
     }

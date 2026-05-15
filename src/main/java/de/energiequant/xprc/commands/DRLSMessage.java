@@ -10,8 +10,6 @@ import de.energiequant.xprc.ChannelMessage;
 import de.energiequant.xprc.types.ValueType;
 
 public class DRLSMessage extends ChannelMessage {
-    // FIXME: draft/WIP
-
     private final DataRefDescription dataRefDescription;
 
     public static class DataRefDescription {

@@ -1,8 +1,6 @@
 package de.energiequant.xprc.types;
 
 class BlobValueType implements ValueType<byte[]> {
-    // FIXME: implement
-
     public static final String ENCODED_TYPE_NAME = "blob";
 
     @Override

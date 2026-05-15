@@ -11,8 +11,6 @@ import de.energiequant.xprc.XPRCClient;
 import de.energiequant.xprc.types.ValueType;
 
 public class DRMUCommandBuilder<SELF extends DRMUCommandBuilder<SELF, CH, CFB, C>, CH extends DRMUChannel<CH, CFB, C>, CFB extends DRMUChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRMUMessage>> extends Command.Builder<SELF, C, CH, CFB, DRMUMessage> {
-    // FIXME: draft/WIP
-
     // TODO: support updating parameters? (change values on later calls)
 
     private static final String SUB_FIELD_SEPARATOR = ":";

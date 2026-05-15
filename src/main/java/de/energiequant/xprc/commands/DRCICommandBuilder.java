@@ -16,8 +16,6 @@ import de.energiequant.xprc.XPRCClient;
 import de.energiequant.xprc.types.ValueType;
 
 public class DRCICommandBuilder<SELF extends DRCICommandBuilder<SELF, CH, CFB, C>, CH extends DRCIChannel<CH, CFB, C>, CFB extends DRCIChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRCIMessage>> extends Command.Builder<SELF, C, CH, CFB, DRCIMessage> {
-    // FIXME: draft/WIP
-
     private List<ValueType<?>> types;
     private String dataRefName;
     private int arrayLength = -1;

@@ -15,8 +15,6 @@ import de.energiequant.xprc.commands.DRQVChannel.ValueCallback;
 import de.energiequant.xprc.types.ValueType;
 
 public class DRQVCommandBuilder<SELF extends DRQVCommandBuilder<SELF, CH, CFB, C>, CH extends DRQVChannel<CH, CFB, C>, CFB extends DRQVChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRQVMessage>> extends Command.Builder<SELF, C, CH, CFB, DRQVMessage> {
-    // FIXME: draft/WIP
-
     private final List<DataRef<?>> dataRefs = new ArrayList<>();
 
     @SuppressWarnings("rawtypes")

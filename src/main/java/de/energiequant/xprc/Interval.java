@@ -3,8 +3,6 @@ package de.energiequant.xprc;
 import java.time.Duration;
 
 public class Interval {
-    // FIXME: draft/WIP
-
     public static Interval ONCE = new Interval(0, false);
 
     private final long value;

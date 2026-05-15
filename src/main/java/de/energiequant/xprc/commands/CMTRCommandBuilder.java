@@ -12,8 +12,6 @@ import de.energiequant.xprc.Interval;
 import de.energiequant.xprc.XPRCClient;
 
 public class CMTRCommandBuilder<SELF extends CMTRCommandBuilder<SELF, CH, CFB, C>, CH extends CMTRChannel<CH, CFB, C>, CFB extends CMTRChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, CMTRMessage>> extends Command.Builder<SELF, C, CH, CFB, CMTRMessage> {
-    // FIXME: draft/WIP
-
     public enum MonitorMode {
         HOLD_RELEASE("holdRelease"),
         CYCLE("cycle"),

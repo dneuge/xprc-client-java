@@ -1,7 +1,6 @@
 package de.energiequant.xprc.types;
 
 class FloatArrayValueType implements ValueType<float[]> {
-    // FIXME: implement
     // TODO: unit tests
 
     public static final String ENCODED_TYPE_NAME = "float[]";
