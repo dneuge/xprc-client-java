@@ -24,6 +24,9 @@ import de.energiequant.xprc.commands.DRMUMessage;
 import de.energiequant.xprc.commands.DRQVChannel;
 import de.energiequant.xprc.commands.DRQVCommandBuilder;
 import de.energiequant.xprc.commands.DRQVMessage;
+import de.energiequant.xprc.commands.SRIDChannel;
+import de.energiequant.xprc.commands.SRIDCommandBuilder;
+import de.energiequant.xprc.commands.SRIDMessage;
 
 public class CommandBuilderFactory {
     private final XPRCClient client;
@@ -102,12 +105,28 @@ public class CommandBuilderFactory {
         }
     }
 
+    public static class ServerCommandBuilderFactory {
+        private final CommandBuilderFactory rootFactory;
+
+        private ServerCommandBuilderFactory(CommandBuilderFactory rootFactory) {
+            this.rootFactory = rootFactory;
+        }
+
+        public <CB extends SRIDCommandBuilder<CB, CH, CFB, C>, CH extends SRIDChannel<CH, CFB, C>, CFB extends SRIDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, SRIDMessage>> CB identify() {
+            return rootFactory.srid();
+        }
+    }
+
     public DataRefCommandBuilderFactory dataRefs() {
         return new DataRefCommandBuilderFactory(this);
     }
 
     public CommandCommandBuilderFactory commands() {
         return new CommandCommandBuilderFactory(this);
+    }
+
+    public ServerCommandBuilderFactory server() {
+        return new ServerCommandBuilderFactory(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -171,5 +190,10 @@ public class CommandBuilderFactory {
     @SuppressWarnings("unchecked")
     public <CB extends DRMUCommandBuilder<CB, CH, CFB, C>, CH extends DRMUChannel<CH, CFB, C>, CFB extends DRMUChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, DRMUMessage>> CB drmu() {
         return (CB) new DRMUCommandBuilder<CB, CH, CFB, C>(client);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends SRIDCommandBuilder<CB, CH, CFB, C>, CH extends SRIDChannel<CH, CFB, C>, CFB extends SRIDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, SRIDMessage>> CB srid() {
+        return (CB) new SRIDCommandBuilder<CB, CH, CFB, C>(client);
     }
 }
