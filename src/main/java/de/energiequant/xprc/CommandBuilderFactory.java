@@ -27,6 +27,9 @@ import de.energiequant.xprc.commands.DRQVMessage;
 import de.energiequant.xprc.commands.SRIDChannel;
 import de.energiequant.xprc.commands.SRIDCommandBuilder;
 import de.energiequant.xprc.commands.SRIDMessage;
+import de.energiequant.xprc.commands.SRLCChannel;
+import de.energiequant.xprc.commands.SRLCCommandBuilder;
+import de.energiequant.xprc.commands.SRLCMessage;
 
 public class CommandBuilderFactory {
     private final XPRCClient client;
@@ -115,6 +118,10 @@ public class CommandBuilderFactory {
         public <CB extends SRIDCommandBuilder<CB, CH, CFB, C>, CH extends SRIDChannel<CH, CFB, C>, CFB extends SRIDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, SRIDMessage>> CB identify() {
             return rootFactory.srid();
         }
+
+        public <CB extends SRLCCommandBuilder<CB, CH, CFB, C>, CH extends SRLCChannel<CH, CFB, C>, CFB extends SRLCChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, SRLCMessage>> CB listCommands() {
+            return rootFactory.srlc();
+        }
     }
 
     public DataRefCommandBuilderFactory dataRefs() {
@@ -195,5 +202,10 @@ public class CommandBuilderFactory {
     @SuppressWarnings("unchecked")
     public <CB extends SRIDCommandBuilder<CB, CH, CFB, C>, CH extends SRIDChannel<CH, CFB, C>, CFB extends SRIDChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, SRIDMessage>> CB srid() {
         return (CB) new SRIDCommandBuilder<CB, CH, CFB, C>(client);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <CB extends SRLCCommandBuilder<CB, CH, CFB, C>, CH extends SRLCChannel<CH, CFB, C>, CFB extends SRLCChannel.FactoryBuilder<CFB, CH, C>, C extends Command<CFB, CH, C, SRLCMessage>> CB srlc() {
+        return (CB) new SRLCCommandBuilder<CB, CH, CFB, C>(client);
     }
 }
