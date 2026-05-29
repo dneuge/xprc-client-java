@@ -284,10 +284,6 @@ public class Command<CFB extends ChannelFactoryBuilder<CFB, CH, C, M>, CH extend
             return prepareChannel().submit();
         }
 
-        public CH submit(ChannelId channelId) {
-            return prepareChannel().submit(channelId);
-        }
-
         @Override
         public String toString() {
             return getClass().getSimpleName() + "(" + name

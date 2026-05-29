@@ -88,10 +88,6 @@ public abstract class ChannelFactoryBuilder<SELF extends ChannelFactoryBuilder<S
         return client.submitCommand(this);
     }
 
-    public CH submit(ChannelId channelId) {
-        return null;
-    }
-
     public ChannelFactory<CH, C, M> build() {
         return buildSpecificFactory(commandFactory, callbackBuilder.build());
     }
